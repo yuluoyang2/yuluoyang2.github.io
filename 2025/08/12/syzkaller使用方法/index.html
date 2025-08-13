@@ -19,18 +19,20 @@
   <meta name="author" content="yuluoyang">
   <meta name="keywords" content="">
   
-    <meta name="description" content="syzkaller fuzz 使用方法部署系统依赖组件*  12345678910111213sudo apt updatesudo apt install debootstrapsudo apt install qemu-kvmsudo apt install subversionsudo apt-get install gitsudo apt-get install makesudo apt-">
+    <meta name="description" content="syzkaller fuzz 使用方法部署系统依赖组件 安装必备组件  12345678910111213sudo apt updatesudo apt install debootstrap #创建容器或嵌入式系统的根文件系统sudo apt install qemu-kvmsudo apt install subversion #集中式版本控制系统sudo apt-get install gi">
 <meta property="og:type" content="article">
 <meta property="og:title" content="syzkaller使用方法">
 <meta property="og:url" content="http://example.com/2025/08/12/syzkaller%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/index.html">
 <meta property="og:site_name" content="个人博客">
-<meta property="og:description" content="syzkaller fuzz 使用方法部署系统依赖组件*  12345678910111213sudo apt updatesudo apt install debootstrapsudo apt install qemu-kvmsudo apt install subversionsudo apt-get install gitsudo apt-get install makesudo apt-">
+<meta property="og:description" content="syzkaller fuzz 使用方法部署系统依赖组件 安装必备组件  12345678910111213sudo apt updatesudo apt install debootstrap #创建容器或嵌入式系统的根文件系统sudo apt install qemu-kvmsudo apt install subversion #集中式版本控制系统sudo apt-get install gi">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/_posts/syzkaller%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/image1.png">
 <meta property="article:published_time" content="2025-08-12T12:53:14.000Z">
-<meta property="article:modified_time" content="2025-08-12T13:16:51.623Z">
+<meta property="article:modified_time" content="2025-08-13T09:39:46.431Z">
 <meta property="article:author" content="yuluoyang">
 <meta property="article:tag" content="syzkaller">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/_posts/syzkaller%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/image1.png">
   
   
   
@@ -236,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          472 字
+          746 字
         
       </span>
     
@@ -247,7 +249,7 @@
         
         
         
-          4 分钟
+          7 分钟
         
       </span>
     
@@ -298,39 +300,51 @@
             
               <div class="markdown-body">
                 
-                <h1 id="syzkaller-fuzz-使用方法"><a href="#syzkaller-fuzz-使用方法" class="headerlink" title="syzkaller fuzz 使用方法"></a>syzkaller fuzz 使用方法</h1><h2 id="部署系统依赖组件"><a href="#部署系统依赖组件" class="headerlink" title="部署系统依赖组件"></a>部署系统依赖组件</h2><p>* </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt update<br><span class="hljs-built_in">sudo</span> apt install debootstrap<br><span class="hljs-built_in">sudo</span> apt install qemu-kvm<br><span class="hljs-built_in">sudo</span> apt install subversion<br><span class="hljs-built_in">sudo</span> apt-get install git<br><span class="hljs-built_in">sudo</span> apt-get install make<br><span class="hljs-built_in">sudo</span> apt-get install qemu<br><span class="hljs-built_in">sudo</span> apt install libssl-dev libelf-dev<br><span class="hljs-built_in">sudo</span> apt-get install g++<br><span class="hljs-built_in">sudo</span> apt-get install build-essential<br><span class="hljs-built_in">sudo</span> apt install gcc<br><span class="hljs-built_in">sudo</span> apt-get install vim<br><span class="hljs-built_in">sudo</span> apt install tree<br></code></pre></td></tr></table></figure>
-<ul>
-<li></li>
+                <h1 id="syzkaller-fuzz-使用方法"><a href="#syzkaller-fuzz-使用方法" class="headerlink" title="syzkaller fuzz 使用方法"></a>syzkaller fuzz 使用方法</h1><h2 id="部署系统依赖组件"><a href="#部署系统依赖组件" class="headerlink" title="部署系统依赖组件"></a>部署系统依赖组件</h2><ul>
+<li>安装必备组件</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> dpkg --add-architecture i386<br><span class="hljs-built_in">sudo</span> apt-get install flex bison libc6-dev libc6-dev-i386 linux-libc-dev linux-libc-dev:i386 libgmp3-dev libmpfr-dev libmpc-dev<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt update<br><span class="hljs-built_in">sudo</span> apt install debootstrap <span class="hljs-comment">#创建容器或嵌入式系统的根文件系统</span><br><span class="hljs-built_in">sudo</span> apt install qemu-kvm<br><span class="hljs-built_in">sudo</span> apt install subversion <span class="hljs-comment">#集中式版本控制系统</span><br><span class="hljs-built_in">sudo</span> apt-get install git<br><span class="hljs-built_in">sudo</span> apt-get install make<br><span class="hljs-built_in">sudo</span> apt-get install qemu<br><span class="hljs-built_in">sudo</span> apt install libssl-dev libelf-dev <span class="hljs-comment">#libssl-dev用于开发需要加密、SSL/TLS 通信的程序;libelf-dev常用于内核模块或二进制分析工具开发。</span><br><span class="hljs-built_in">sudo</span> apt-get install g++<br><span class="hljs-built_in">sudo</span> apt-get install build-essential <span class="hljs-comment">#开发基础工具包</span><br><span class="hljs-built_in">sudo</span> apt install gcc<br><span class="hljs-built_in">sudo</span> apt-get install vim<br><span class="hljs-built_in">sudo</span> apt install tree<br></code></pre></td></tr></table></figure>
 <ul>
-<li></li>
+<li>启用32位支持</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># cd / 回到主目录</span><br>wget https://dl.google.com/go/go1.20.1.linux-amd64.tar.gz<br>tar -xf go1.20.1.linux-amd64.tar.gz<br><span class="hljs-built_in">export</span> GOROOT=`<span class="hljs-built_in">pwd</span>`/go<br><span class="hljs-built_in">export</span> GOPATH=<span class="hljs-variable">$HOME</span>/go  <span class="hljs-comment"># 工作目录，可自定义</span><br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$GOROOT</span>/bin:<span class="hljs-variable">$GOPATH</span>/bin:<span class="hljs-variable">$PATH</span><br></code></pre></td></tr></table></figure>
-<h2 id="使用源码安装系统"><a href="#使用源码安装系统" class="headerlink" title="使用源码安装系统"></a>使用源码安装系统</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># cd / 回到主目录</span><br>git <span class="hljs-built_in">clone</span> https://github.com/google/syzkaller.git<br><span class="hljs-built_in">cd</span> syzkaller/<br>make<br>tree ./bin/<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> dpkg --add-architecture i386 <span class="hljs-comment">#用于在 64 位 Debian/Ubuntu 系统中添加 32 位架构支持</span><br><span class="hljs-built_in">sudo</span> apt-get install flex bison libc6-dev libc6-dev-i386 linux-libc-dev linux-libc-dev:i386 libgmp3-dev libmpfr-dev libmpc-dev<br></code></pre></td></tr></table></figure>
+<ul>
+<li>导入go环境</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># cd / 回到主目录</span><br>wget https://dl.google.com/go/go1.20.1.linux-amd64.tar.gz<br>tar -xf go1.20.1.linux-amd64.tar.gz<br><span class="hljs-built_in">export</span> GOROOT=`<span class="hljs-built_in">pwd</span>`/go<br><span class="hljs-built_in">export</span> GOPATH=<span class="hljs-variable">$HOME</span>/go  <span class="hljs-comment"># 工作目录，可自定义</span><br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$GOROOT</span>/bin:<span class="hljs-variable">$GOPATH</span>/bin:<span class="hljs-variable">$PATH</span><br>go version <span class="hljs-comment">#判断是否安装成功</span><br></code></pre></td></tr></table></figure>
+<h2 id="使用源码安装syzkaller"><a href="#使用源码安装syzkaller" class="headerlink" title="使用源码安装syzkaller"></a>使用源码安装syzkaller</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># cd / 回到主目录</span><br>git <span class="hljs-built_in">clone</span> https://github.com/google/syzkaller.git<br><span class="hljs-built_in">cd</span> syzkaller/<br>make<br>tree ./bin/<br></code></pre></td></tr></table></figure>
 <p>在Syzkaller目录下会出现一个bin目录，此目录中的内容如下图所示</p>
+<p><img src="/../_posts/syzkaller%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/image1.png" srcset="/img/loading.gif" lazyload alt="我是图片"></p>
 <h2 id="编译内核"><a href="#编译内核" class="headerlink" title="编译内核"></a>编译内核</h2><ul>
 <li></li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git<br><span class="hljs-built_in">cd</span> linux<br>make defconfig<br>make kvm_guest.config<br>vim .config<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git<br><span class="hljs-built_in">cd</span> linux<br>make defconfig <span class="hljs-comment">#生成默认的内核配置文件</span><br>make kvm_guest.config <span class="hljs-comment">#针对 KVM 虚拟机环境优化配置，将 KVM 虚拟机优化相关的配置写入 .config 文件中</span><br>vim .config<br></code></pre></td></tr></table></figure>
 <ul>
-<li>插入</li>
+<li>插入以下设置</li>
 </ul>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_KCOV</span>=y<br><span class="hljs-attr">CONFIG_DEBUG_INFO_DWARF4</span>=y<br><span class="hljs-attr">CONFIG_KASAN</span>=y<br><span class="hljs-attr">CONFIG_KASAN_INLINE</span>=y<br><span class="hljs-attr">CONFIG_CONFIGFS_FS</span>=y<br><span class="hljs-attr">CONFIG_SECURITYFS</span>=y<br></code></pre></td></tr></table></figure>
 <ul>
-<li></li>
+<li>编译linux内核</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">make olddefconfig<br>make -j4<br><span class="hljs-built_in">ls</span> vmlinux<br><span class="hljs-built_in">ls</span> <span class="hljs-built_in">arch</span>/x86/boot/bzImage<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">make olddefconfig <span class="hljs-comment">#基于现有配置，自动处理新版本内核中新增的配置选项，生成一个与当前内核版本兼容的配置文件。</span><br>make -j4<br><span class="hljs-built_in">ls</span> vmlinux  <span class="hljs-comment">#未压缩的原始内核可执行文件</span><br><span class="hljs-built_in">ls</span> <span class="hljs-built_in">arch</span>/x86/boot/bzImage  <span class="hljs-comment">#压缩后的内核镜像</span><br></code></pre></td></tr></table></figure>
 <h2 id="配置测试虚拟机"><a href="#配置测试虚拟机" class="headerlink" title="配置测试虚拟机"></a>配置测试虚拟机</h2><ul>
 <li></li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># cd /回到主目录</span><br><span class="hljs-comment"># 更新软件源（确保能获取最新包信息）</span><br><span class="hljs-built_in">sudo</span> apt-get update<br><br><span class="hljs-comment"># 安装/重新安装密钥环包</span><br><span class="hljs-built_in">sudo</span> apt-get install --reinstall debian-archive-keyring<br><br><span class="hljs-built_in">mkdir</span> image-test<br><span class="hljs-built_in">cd</span> image-test/<br>wget https://raw.githubusercontent.com/google/syzkaller/master/tools/create-image.sh -O create-image.sh<br><span class="hljs-built_in">chmod</span> +x create-image.sh<br>./create-image.sh<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># cd /回到主目录</span><br><span class="hljs-comment"># 更新软件源（确保能获取最新包信息）</span><br><span class="hljs-built_in">sudo</span> apt update<br><br><span class="hljs-comment"># 安装/重新安装密钥环包</span><br><span class="hljs-built_in">sudo</span> apt install --reinstall debian-archive-keyring<br></code></pre></td></tr></table></figure>
+<ul>
+<li>构建根文件系统</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkdir</span> image-test<br><span class="hljs-built_in">cd</span> image-test/<br>wget https://raw.githubusercontent.com/google/syzkaller/master/tools/create-image.sh -O create-image.sh<br><span class="hljs-built_in">chmod</span> +x create-image.sh<br>./create-image.sh<br></code></pre></td></tr></table></figure>
 <ul>
 <li>运行虚拟机</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># boot.sh 运行</span><br>qemu-system-x86_64 \<br>    -m 2G \<br>    -smp 2 \<br>    -kernel /home/yuluoyang/linux/arch/x86/boot/bzImage \<br>    -append <span class="hljs-string">&quot;console=ttyS0 root=/dev/sda earlyprintk=serial net.ifnames=0&quot;</span> \<br>    -drive file=/home/yuluoyang/image-test/bullseye.img,format=raw \<br>    -net user,hostfwd=tcp:127.0.0.1:10021-:22 \<br>    -net nic,model=e1000 \<br>    -enable-kvm \<br>    -nographic \<br>    -pidfile /home/yuluoyang/vm.pid 2&gt;&amp;1 | <span class="hljs-built_in">tee</span> /home/yuluoyang/vm.log<br></code></pre></td></tr></table></figure>
-
+<blockquote>
+<p>内核（-kernel） 是 “操作系统核心”，负责硬件管理和底层功能</p>
+</blockquote>
+<blockquote>
+<p>磁盘镜像（-drive） 是 “用户态系统”，包含应用程序、配置文件等</p>
+</blockquote>
 <ul>
 <li>新开终端</li>
 </ul>
@@ -349,9 +363,11 @@
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> syzkaller<br><span class="hljs-built_in">sudo</span> ./bin/syz-manager -config=setting.cfg<br></code></pre></td></tr></table></figure>
 <ul>
-<li>访问</li>
+<li>监控数据上传</li>
 </ul>
-<p>访问 http:127.0.0.1:56741</p>
+<blockquote>
+<p>访问 <a target="_blank" rel="noopener" href="http://127.0.0.1:56741/">链接</a></p>
+</blockquote>
 
                 
               </div>
