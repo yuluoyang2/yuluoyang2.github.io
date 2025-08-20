@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>wsl入门</title>
+    <link href="/2025/08/20/wsl%E5%85%A5%E9%97%A8/"/>
+    <url>/2025/08/20/wsl%E5%85%A5%E9%97%A8/</url>
+    
+    <content type="html"><![CDATA[<h1 id="WSL部署"><a href="#WSL部署" class="headerlink" title="WSL部署"></a>WSL部署</h1><h2 id="开启功能"><a href="#开启功能" class="headerlink" title="开启功能"></a>开启功能</h2><blockquote><p>开启适用于linux的winodws子系统的<br>开机重启</p></blockquote><h2 id="下载系统"><a href="#下载系统" class="headerlink" title="下载系统"></a>下载系统</h2><blockquote><p>微软商店下载ubuntu或者centos系统</p></blockquote><h2 id="迁移系统"><a href="#迁移系统" class="headerlink" title="迁移系统"></a>迁移系统</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 先看下自己安装的 WSL 名字是什么，下面是我的名字是 Ubuntu-22.04，你要做替换</span><br>wsl -l<br><span class="hljs-comment"># 进入 D 盘，然后新建 wslubuntu 文件夹，你可以叫其他名字，用来承载新迁移的目录</span><br><span class="hljs-built_in">mkdir</span> D:\wslubuntu<br><span class="hljs-built_in">cd</span> D:\wslubuntu<br><span class="hljs-comment"># 接着开始迁移</span><br>wsl --<span class="hljs-built_in">export</span> Ubuntu-22.04 d://wslubuntu//ubuntu-22.04.tar <span class="hljs-comment">#导出系统镜像</span><br>wsl --unregister Ubuntu-22.04  <span class="hljs-comment">#注销原有的linux系统</span><br>wsl --import Ubuntu-22.04 d://wslubuntu//ubuntu-22.04.tar <span class="hljs-comment">#导入系统</span><br><span class="hljs-comment"># 再次使用 wsl -l 命令查看，然后启动 Ubuntu-22.04 看下是否迁移正常。</span><br><br></code></pre></td></tr></table></figure><h1 id="WSL常用命令"><a href="#WSL常用命令" class="headerlink" title="WSL常用命令"></a>WSL常用命令</h1><blockquote><p>wsl –help &#x2F;&#x2F;查看帮助信息</p></blockquote><blockquote><p>wsl –install <Distro> &#x2F;&#x2F;安装微软官方提供的子系统 wsl –install Debian</p></blockquote><blockquote><p>wsl –set-default <Distro>  &#x2F;&#x2F; –set-default 可简写为 -s</p></blockquote><blockquote><p>wsl –status</p></blockquote><blockquote><p>wsl –list –verbose  &#x2F;&#x2F; 可简写为 wsl -l -v，非常常用！</p></blockquote><blockquote><p>wsl –distribution <Distro>  &#x2F;&#x2F; –distribution 可以简写为 -d 进入指定的子系统：</p></blockquote><blockquote><p>wsl –shutdown &#x2F;&#x2F;关闭所有子系统：</p></blockquote><blockquote><p>wsl –unregister <Distro> &#x2F;&#x2F;卸载某个子系统</p></blockquote><h1 id="WSL-Vs-Code进阶"><a href="#WSL-Vs-Code进阶" class="headerlink" title="WSL + Vs Code进阶"></a>WSL + Vs Code进阶</h1><h2 id="安装插件"><a href="#安装插件" class="headerlink" title="安装插件"></a>安装插件</h2><blockquote><p>在 VS Code 插件市场搜索并安装 Remote - WSL 插件。</p></blockquote><h2 id="在-WSL-中打开-VSCode，"><a href="#在-WSL-中打开-VSCode，" class="headerlink" title="在 WSL 中打开 VSCode，"></a>在 WSL 中打开 VSCode，</h2><blockquote><p>在终端输入 code .，然后就可以在 VSCode 中开发了</p></blockquote><h2 id="VSCode打开WSL"><a href="#VSCode打开WSL" class="headerlink" title="VSCode打开WSL"></a>VSCode打开WSL</h2><blockquote></blockquote>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>syzkaller使用方法</title>
     <link href="/2025/08/12/syzkaller%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/"/>
     <url>/2025/08/12/syzkaller%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/</url>
