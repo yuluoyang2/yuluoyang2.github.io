@@ -19,21 +19,23 @@
   <meta name="author" content="yuluoyang">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Clang 作为一款高效的 C&#x2F;C++&#x2F;Objective-C 编译器，提供了丰富的编译选项，用于控制代码生成、优化、调试、警告等。以下是常用的编译选项分类整理： 基础编译选项   选项 作用    -c 仅编译生成目标文件，不链接   -o 指定输出文件   -std&#x3D;cxx 指定语言标准   -l 链接指定库   优化选项   选项 作用    -O1 基础优化">
+    <meta name="description" content="Clang 作为一款高效的 C&#x2F;C++&#x2F;Objective-C 编译器，提供了丰富的编译选项，用于控制代码生成、优化、调试、警告等。 编译流程12345 源码        预处理      编译        汇编        链接.c  ──→(内存)──→(内存)──→(内存)──→  .o ──→  .elf&#x2F;.exe ↑        ↑         ↑">
 <meta property="og:type" content="article">
-<meta property="og:title" content="clang常见选项和多文件编译">
+<meta property="og:title" content="clang介绍和文件的编译、汇编与链接">
 <meta property="og:url" content="http://example.com/2025/09/09/clang%E5%B8%B8%E8%A7%81%E9%80%89%E9%A1%B9/index.html">
 <meta property="og:site_name" content="个人博客">
-<meta property="og:description" content="Clang 作为一款高效的 C&#x2F;C++&#x2F;Objective-C 编译器，提供了丰富的编译选项，用于控制代码生成、优化、调试、警告等。以下是常用的编译选项分类整理： 基础编译选项   选项 作用    -c 仅编译生成目标文件，不链接   -o 指定输出文件   -std&#x3D;cxx 指定语言标准   -l 链接指定库   优化选项   选项 作用    -O1 基础优化">
+<meta property="og:description" content="Clang 作为一款高效的 C&#x2F;C++&#x2F;Objective-C 编译器，提供了丰富的编译选项，用于控制代码生成、优化、调试、警告等。 编译流程12345 源码        预处理      编译        汇编        链接.c  ──→(内存)──→(内存)──→(内存)──→  .o ──→  .elf&#x2F;.exe ↑        ↑         ↑">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/test.jpg">
 <meta property="article:published_time" content="2025-09-09T12:13:45.000Z">
-<meta property="article:modified_time" content="2025-09-09T12:28:13.832Z">
+<meta property="article:modified_time" content="2025-09-15T09:30:53.417Z">
 <meta property="article:author" content="yuluoyang">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/test.jpg">
   
   
   
-  <title>clang常见选项和多文件编译 - 个人博客</title>
+  <title>clang介绍和文件的编译、汇编与链接 - 个人博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -212,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="clang常见选项和多文件编译"></span>
+            <span id="subtitle" data-typed-text="clang介绍和文件的编译、汇编与链接"></span>
           
         </div>
 
@@ -235,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          274 字
+          443 字
         
       </span>
     
@@ -246,7 +248,7 @@
         
         
         
-          3 分钟
+          4 分钟
         
       </span>
     
@@ -292,12 +294,14 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">clang常见选项和多文件编译</h1>
+            <h1 id="seo-header">clang介绍和文件的编译、汇编与链接</h1>
             
             
               <div class="markdown-body">
                 
-                <p>Clang 作为一款高效的 C&#x2F;C++&#x2F;Objective-C 编译器，提供了丰富的编译选项，用于控制代码生成、优化、调试、警告等。以下是常用的编译选项分类整理：</p>
+                <p>Clang 作为一款高效的 C&#x2F;C++&#x2F;Objective-C 编译器，提供了丰富的编译选项，用于控制代码生成、优化、调试、警告等。</p>
+<h2 id="编译流程"><a href="#编译流程" class="headerlink" title="编译流程"></a>编译流程</h2><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli"> 源码        预处理      编译        汇编        链接<br><span class="hljs-string">.c</span>  ──→<span class="hljs-params">(内存)</span>──→<span class="hljs-params">(内存)</span>──→<span class="hljs-params">(内存)</span>──→  <span class="hljs-string">.o</span> ──→  <span class="hljs-string">.elf/.exe</span><br> ↑        ↑         ↑         ↑<br> │        │         │         │<br> `-E→<span class="hljs-string">.i</span>  `-S→<span class="hljs-string">.s</span>  `-c→<span class="hljs-string">.o</span>      ld<br></code></pre></td></tr></table></figure>
+<h2 id="分步编译"><a href="#分步编译" class="headerlink" title="分步编译"></a>分步编译</h2><p><img src="/test.jpg" srcset="/img/loading.gif" lazyload alt="图片引用方法二"></p>
 <h2 id="基础编译选项"><a href="#基础编译选项" class="headerlink" title="基础编译选项"></a>基础编译选项</h2><table>
 <thead>
 <tr>
@@ -307,11 +311,19 @@
 </thead>
 <tbody><tr>
 <td>-c</td>
-<td>仅编译生成目标文件，不链接</td>
+<td>编译和汇编，生成目标文件.o文件</td>
 </tr>
 <tr>
 <td>-o</td>
 <td>指定输出文件</td>
+</tr>
+<tr>
+<td>-E</td>
+<td>预编译，产生文本形式的.i文件</td>
+</tr>
+<tr>
+<td>-S</td>
+<td>汇编源文件，生成汇编语言形式的.s文件</td>
 </tr>
 <tr>
 <td>-std&#x3D;cxx</td>
@@ -358,6 +370,11 @@
 <td>启用覆盖率跟踪</td>
 </tr>
 </tbody></table>
+<h2 id="条件编译"><a href="#条件编译" class="headerlink" title="条件编译"></a>条件编译</h2><p>条件编译 &#x3D; “预处理的 if-else”，代码还没编译就被剪掉，用来写调试开关、跨平台代码、头文件卫士。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">##基本用法</span><br>clang main.c -DDEBUG           <span class="hljs-comment"># 等价于 #define DEBUG 1</span><br>clang main.c -DVERSION=3       <span class="hljs-comment"># 等价于 #define VERSION 3</span><br>clang main.c -DMAX=1024 -g -O2 <span class="hljs-comment"># 可与其他开关混用</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//调试/发行版切换</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> DEBUG</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;trace: x=%d\n&quot;</span>, x);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">##功能裁剪</span><br>make ENABLE_SSL=1   → 传 -DENABLE_SSL<br><span class="hljs-comment">##跨平台</span><br>clang main.c -DLINUX<br>cl  main.c /DWINDOWS   <span class="hljs-comment"># MSVC 同样支持 /D</span><br></code></pre></td></tr></table></figure>
+
 <h2 id="多文件编译-–-分步编译"><a href="#多文件编译-–-分步编译" class="headerlink" title="多文件编译 – 分步编译"></a>多文件编译 – 分步编译</h2><ul>
 <li>单独编译每个源文件为目标文件，使用 -c 选项（仅编译不链接），生成二进制目标文件</li>
 <li>链接目标文件生成可执行文件，将所有目标文件链接起来，生成最终可执行文件</li>
@@ -379,7 +396,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>clang常见选项和多文件编译</div>
+      <div>clang介绍和文件的编译、汇编与链接</div>
       <div>http://example.com/2025/09/09/clang常见选项/</div>
     </div>
     <div class="license-meta">
