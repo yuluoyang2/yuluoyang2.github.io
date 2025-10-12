@@ -19,23 +19,21 @@
   <meta name="author" content="yuluoyang">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Clang 作为一款高效的 C&#x2F;C++&#x2F;Objective-C 编译器，提供了丰富的编译选项，用于控制代码生成、优化、调试、警告等。 编译流程12345 源码        预处理      编译        汇编        链接.c  ──→(内存)──→(内存)──→(内存)──→  .o ──→  .elf&#x2F;.exe ↑        ↑         ↑">
+    <meta name="description" content="syzkaller进阶poc介绍POC（Proof of Concept，概念验证） 是一段段能够验证某个漏洞、功能或理论可行性的代码、脚本或步骤集合。它的核心作用是 “证明某个问题确实存在，且可被复现”，是漏洞分析、功能验证和技术演示的关键工具。 syz-repro介绍syz-repro 是 syzkaller 工具链里的复现器，拿到一次 crash（或任意 syscall 序列）后，它会在本地">
 <meta property="og:type" content="article">
-<meta property="og:title" content="clang介绍和文件的编译、汇编与链接">
-<meta property="og:url" content="http://example.com/2025/09/09/clang%E5%B8%B8%E8%A7%81%E9%80%89%E9%A1%B9/index.html">
+<meta property="og:title" content="syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)">
+<meta property="og:url" content="http://example.com/2025/10/12/syzkaller%E8%BF%9B%E9%98%B61/index.html">
 <meta property="og:site_name" content="个人博客">
-<meta property="og:description" content="Clang 作为一款高效的 C&#x2F;C++&#x2F;Objective-C 编译器，提供了丰富的编译选项，用于控制代码生成、优化、调试、警告等。 编译流程12345 源码        预处理      编译        汇编        链接.c  ──→(内存)──→(内存)──→(内存)──→  .o ──→  .elf&#x2F;.exe ↑        ↑         ↑">
+<meta property="og:description" content="syzkaller进阶poc介绍POC（Proof of Concept，概念验证） 是一段段能够验证某个漏洞、功能或理论可行性的代码、脚本或步骤集合。它的核心作用是 “证明某个问题确实存在，且可被复现”，是漏洞分析、功能验证和技术演示的关键工具。 syz-repro介绍syz-repro 是 syzkaller 工具链里的复现器，拿到一次 crash（或任意 syscall 序列）后，它会在本地">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/test.jpg">
-<meta property="article:published_time" content="2025-09-09T12:13:45.000Z">
-<meta property="article:modified_time" content="2025-09-15T09:30:53.417Z">
+<meta property="article:published_time" content="2025-10-12T08:42:34.000Z">
+<meta property="article:modified_time" content="2025-10-12T12:37:12.851Z">
 <meta property="article:author" content="yuluoyang">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/test.jpg">
   
   
   
-  <title>clang介绍和文件的编译、汇编与链接 - 个人博客</title>
+  <title>syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog) - 个人博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +212,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="clang介绍和文件的编译、汇编与链接"></span>
+            <span id="subtitle" data-typed-text="syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)"></span>
           
         </div>
 
@@ -225,8 +223,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-09-09 20:13" pubdate>
-          2025年9月9日 晚上
+        <time datetime="2025-10-12 16:42" pubdate>
+          2025年10月12日 下午
         </time>
       </span>
     
@@ -237,7 +235,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          443 字
+          755 字
         
       </span>
     
@@ -248,7 +246,7 @@
         
         
         
-          4 分钟
+          7 分钟
         
       </span>
     
@@ -294,92 +292,55 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">clang介绍和文件的编译、汇编与链接</h1>
+            <h1 id="seo-header">syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)</h1>
             
             
               <div class="markdown-body">
                 
-                <p>Clang 作为一款高效的 C&#x2F;C++&#x2F;Objective-C 编译器，提供了丰富的编译选项，用于控制代码生成、优化、调试、警告等。</p>
-<h2 id="编译流程"><a href="#编译流程" class="headerlink" title="编译流程"></a>编译流程</h2><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli"> 源码        预处理      编译        汇编        链接<br><span class="hljs-string">.c</span>  ──→<span class="hljs-params">(内存)</span>──→<span class="hljs-params">(内存)</span>──→<span class="hljs-params">(内存)</span>──→  <span class="hljs-string">.o</span> ──→  <span class="hljs-string">.elf/.exe</span><br> ↑        ↑         ↑         ↑<br> │        │         │         │<br> `-E→<span class="hljs-string">.i</span>  `-S→<span class="hljs-string">.s</span>  `-c→<span class="hljs-string">.o</span>      ld<br></code></pre></td></tr></table></figure>
-<h2 id="分步编译"><a href="#分步编译" class="headerlink" title="分步编译"></a>分步编译</h2><p><img src="/test.jpg" srcset="/img/loading.gif" lazyload alt="图片引用方法二"></p>
-<h2 id="基础编译选项"><a href="#基础编译选项" class="headerlink" title="基础编译选项"></a>基础编译选项</h2><table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>-c</td>
-<td>编译和汇编，生成目标文件.o文件</td>
-</tr>
-<tr>
-<td>-o</td>
-<td>指定输出文件</td>
-</tr>
-<tr>
-<td>-E</td>
-<td>预编译，产生文本形式的.i文件</td>
-</tr>
-<tr>
-<td>-S</td>
-<td>汇编源文件，生成汇编语言形式的.s文件</td>
-</tr>
-<tr>
-<td>-std&#x3D;cxx</td>
-<td>指定语言标准</td>
-</tr>
-<tr>
-<td>-l</td>
-<td>链接指定库</td>
-</tr>
-</tbody></table>
-<h2 id="优化选项"><a href="#优化选项" class="headerlink" title="优化选项"></a>优化选项</h2><table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>-O1</td>
-<td>基础优化 减少代码大小和执行时间，保留调试信息</td>
-</tr>
-<tr>
-<td>-O2</td>
-<td>更多优化 常用，平衡性能和编译速度</td>
-</tr>
-<tr>
-<td>-O3</td>
-<td>高级优化</td>
-</tr>
-</tbody></table>
-<h2 id="Sanitizer-工具"><a href="#Sanitizer-工具" class="headerlink" title="Sanitizer 工具"></a>Sanitizer 工具</h2><table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>-fsanitizer&#x3D;address</td>
-<td>启用 AddressSanitizer（检测内存泄漏、越界访问等）</td>
-</tr>
-<tr>
-<td>-fsanitizer-coverage&#x3D;trace-pc-guard</td>
-<td>启用覆盖率跟踪</td>
-</tr>
-</tbody></table>
-<h2 id="条件编译"><a href="#条件编译" class="headerlink" title="条件编译"></a>条件编译</h2><p>条件编译 &#x3D; “预处理的 if-else”，代码还没编译就被剪掉，用来写调试开关、跨平台代码、头文件卫士。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">##基本用法</span><br>clang main.c -DDEBUG           <span class="hljs-comment"># 等价于 #define DEBUG 1</span><br>clang main.c -DVERSION=3       <span class="hljs-comment"># 等价于 #define VERSION 3</span><br>clang main.c -DMAX=1024 -g -O2 <span class="hljs-comment"># 可与其他开关混用</span><br></code></pre></td></tr></table></figure>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//调试/发行版切换</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> DEBUG</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;trace: x=%d\n&quot;</span>, x);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">##功能裁剪</span><br>make ENABLE_SSL=1   → 传 -DENABLE_SSL<br><span class="hljs-comment">##跨平台</span><br>clang main.c -DLINUX<br>cl  main.c /DWINDOWS   <span class="hljs-comment"># MSVC 同样支持 /D</span><br></code></pre></td></tr></table></figure>
-
-<h2 id="多文件编译-–-分步编译"><a href="#多文件编译-–-分步编译" class="headerlink" title="多文件编译 – 分步编译"></a>多文件编译 – 分步编译</h2><ul>
-<li>单独编译每个源文件为目标文件，使用 -c 选项（仅编译不链接），生成二进制目标文件</li>
-<li>链接目标文件生成可执行文件，将所有目标文件链接起来，生成最终可执行文件</li>
+                <h1 id="syzkaller进阶"><a href="#syzkaller进阶" class="headerlink" title="syzkaller进阶"></a>syzkaller进阶</h1><h2 id="poc介绍"><a href="#poc介绍" class="headerlink" title="poc介绍"></a>poc介绍</h2><p>POC（Proof of Concept，概念验证） 是一段段能够验证某个漏洞、功能或理论可行性的代码、脚本或步骤集合。它的核心作用是 “证明某个问题确实存在，且可被复现”，是漏洞分析、功能验证和技术演示的关键工具。</p>
+<h2 id="syz-repro介绍"><a href="#syz-repro介绍" class="headerlink" title="syz-repro介绍"></a>syz-repro介绍</h2><p>syz-repro 是 syzkaller 工具链里的复现器，拿到一次 crash（或任意 syscall 序列）后，它会在本地 QEMU&#x2F;VM 里反复执行、最小化、并尝试生成稳定可触发 panic 的精简用例，最终输出两种形式的 PoC：</p>
+<ul>
+<li>1.Syz 格式——用 syzkaller DSL 描述的最短系统调用序列</li>
+<li>2.C 格式——把同一序列翻译成可编译运行的 C 程序，方便在没有 syzkaller 的环境下调试。</li>
 </ul>
-<h2 id="多文件编译-–-Makefile"><a href="#多文件编译-–-Makefile" class="headerlink" title="多文件编译 – Makefile"></a>多文件编译 – Makefile</h2><h2 id="多文件编译-–-CMake"><a href="#多文件编译-–-CMake" class="headerlink" title="多文件编译 – CMake"></a>多文件编译 – CMake</h2>
+<h2 id="syz-repro的使用"><a href="#syz-repro的使用" class="headerlink" title="syz-repro的使用"></a>syz-repro的使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./bin/syz-repro -config repro.cfg -output repro.txt -crepro repro.c -title 6repro_bug_title.txt /path/to/crash/log<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>使用syz-repro对log中包含的prog进行复现，这个流程包括</p>
+</blockquote>
+<ul>
+<li>1.提取出可以触发crash的初始prog</li>
+<li>2.对这个prog进行简化，基本采用的是逐个syscall削减简化</li>
+<li>3.对prog的参数等进行简化</li>
+<li>4.将prog转化为C poc</li>
+<li>5.对C poc进行简化</li>
+</ul>
+<h2 id="crash-log"><a href="#crash-log" class="headerlink" title="crash log"></a>crash log</h2><blockquote>
+<p>crash log（崩溃日志） 是记录内核崩溃事件的关键文件，包含触发崩溃的上下文、错误类型、调用栈等信息，是定位内核漏洞的核心依据</p>
+</blockquote>
+<ul>
+<li>1.触发崩溃的完整系统调用序列（syz 格式）、崩溃上下文，是潜在种子素材</li>
+<li>2.syzkaller 的 syz-executor 主动记录</li>
+<li>3.结构化格式</li>
+<li>4.会带有一些内核打印日志</li>
+</ul>
+<h2 id="程序最小化"><a href="#程序最小化" class="headerlink" title="程序最小化"></a>程序最小化</h2><ul>
+<li>1.初始状态的log包含大量冗余调用的原始序列</li>
+<li>2.syz-repro 会通过 “逐步剔除 + 验证崩溃” 的迭代过程，找到最小化序列<ul>
+<li>首先从log的原始调用中，标记出与崩溃上下文相关的 “高嫌疑调用”</li>
+<li>采用 “二分法” 逐步删除低嫌疑调用，并验证剩余序列是否仍能触发崩溃</li>
+<li>当序列简化到只剩少量调用时，进行 “单调用剔除验证”</li>
+<li>稳定性验证，需要经过 多轮重复执行</li>
+</ul>
+</li>
+<li>最终输出的最小化程序</li>
+</ul>
+<h2 id="syz-prog2c的介绍"><a href="#syz-prog2c的介绍" class="headerlink" title="syz-prog2c的介绍"></a>syz-prog2c的介绍</h2><p>syz-prog2c 是 syzkaller 工具链中的一个实用工具，主要功能是将 syzkaller 生成的 .syz 格式程序（包含系统调用序列的结构化测试用例）转换为 C 语言代码</p>
+<h2 id="syz-prog2c的使用"><a href="#syz-prog2c的使用" class="headerlink" title="syz-prog2c的使用"></a>syz-prog2c的使用</h2><blockquote>
+<p>将syz-repro生成的prog&#x2F;syz文件序转换为C程序</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./bin/syz-prog2c -prog repro.syz &gt; repro.c<br></code></pre></td></tr></table></figure>
+<h2 id="syz-execprog的介绍"><a href="#syz-execprog的介绍" class="headerlink" title="syz-execprog的介绍"></a>syz-execprog的介绍</h2><p>syz-execprog 是 syzkaller 工具链中用于执行 .syz 格式测试用例的核心工具，主要负责将 syzkaller 生成的系统调用序列（测试程序）在目标环境中实际运行，并捕获执行过程中的内核行为（如崩溃、异常）。它是连接 “抽象测试用例” 与 “实际内核执行” 的关键组件。</p>
+<h2 id="syz-execprog的使用"><a href="#syz-execprog的使用" class="headerlink" title="syz-execprog的使用"></a>syz-execprog的使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 在目标环境中执行 .syz 程序，并输出详细日志</span><br>./syz-execprog -v -prog ./poc.syz<br></code></pre></td></tr></table></figure>
                 
               </div>
             
@@ -396,8 +357,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>clang介绍和文件的编译、汇编与链接</div>
-      <div>http://example.com/2025/09/09/clang常见选项/</div>
+      <div>syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)</div>
+      <div>http://example.com/2025/10/12/syzkaller进阶1/</div>
     </div>
     <div class="license-meta">
       
@@ -409,7 +370,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年9月9日</div>
+          <div>2025年10月12日</div>
         </div>
       
       
@@ -441,18 +402,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/10/12/syzkaller%E8%BF%9B%E9%98%B61/" title="syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/08/20/wsl%E5%85%A5%E9%97%A8/" title="wsl入门">
-                        <span class="hidden-mobile">wsl入门</span>
+                      <a href="/2025/09/09/clang%E5%B8%B8%E8%A7%81%E9%80%89%E9%A1%B9/" title="clang介绍和文件的编译、汇编与链接">
+                        <span class="hidden-mobile">clang介绍和文件的编译、汇编与链接</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
