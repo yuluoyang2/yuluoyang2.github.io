@@ -20,7 +20,7 @@
     
     <tags>
       
-      <tag>-syzkaller -Fuzz</tag>
+      <tag>syzkaller Fuzz</tag>
       
     </tags>
     
@@ -45,7 +45,7 @@
     
     <tags>
       
-      <tag>-syzkaller -Fuzz</tag>
+      <tag>syzkaller Fuzz</tag>
       
     </tags>
     
@@ -95,7 +95,7 @@
     
     <tags>
       
-      <tag>-syzkaller -Fuzz</tag>
+      <tag>syzkaller Fuzz</tag>
       
     </tags>
     
