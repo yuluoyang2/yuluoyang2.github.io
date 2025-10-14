@@ -47,7 +47,9 @@
     
     <tags>
       
-      <tag>syzkaller Fuzz</tag>
+      <tag>syzkaller</tag>
+      
+      <tag>Fuzz</tag>
       
     </tags>
     
@@ -72,7 +74,9 @@
     
     <tags>
       
-      <tag>llvm clang</tag>
+      <tag>llvm</tag>
+      
+      <tag>clang</tag>
       
     </tags>
     
@@ -97,7 +101,9 @@
     
     <tags>
       
-      <tag>syzkaller Fuzz</tag>
+      <tag>syzkaller</tag>
+      
+      <tag>Fuzz</tag>
       
     </tags>
     
