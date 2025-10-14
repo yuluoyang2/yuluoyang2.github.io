@@ -4,7 +4,7 @@
   
   
   <entry>
-    <title>syzkaller进阶(syzlang|prog|executor)</title>
+    <title>syzkaller进阶(二)</title>
     <link href="/2025/10/12/syzkaller%E8%BF%9B%E9%98%B62/"/>
     <url>/2025/10/12/syzkaller%E8%BF%9B%E9%98%B62/</url>
     
@@ -23,7 +23,7 @@
   
   
   <entry>
-    <title>syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)</title>
+    <title>syzkaller进阶(一)</title>
     <link href="/2025/10/12/syzkaller%E8%BF%9B%E9%98%B61/"/>
     <url>/2025/10/12/syzkaller%E8%BF%9B%E9%98%B61/</url>
     
