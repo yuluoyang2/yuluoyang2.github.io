@@ -19,22 +19,22 @@
   <meta name="author" content="yuluoyang">
   <meta name="keywords" content="">
   
-    <meta name="description" content="syzkaller进阶-1poc介绍POC（Proof of Concept，概念验证） 是一段段能够验证某个漏洞、功能或理论可行性的代码、脚本或步骤集合。它的核心作用是 “证明某个问题确实存在，且可被复现”，是漏洞分析、功能验证和技术演示的关键工具。 syz-repro介绍syz-repro 是 syzkaller 工具链里的复现器，拿到一次 crash（或任意 syscall 序列）后，它会在">
+    <meta name="description" content="syzkaller进阶-2syzlang和syscall description syzlang syzlang 是定义这些系统调用描述的语言，通过 syzlang，用户可以编写模糊测试程序，定义测试数据和序列，用于撰写syscall description的txt格式，同时syzkaller中各系统调用的文本格式也是syzlang语言   syscall description syscall">
 <meta property="og:type" content="article">
-<meta property="og:title" content="syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)">
-<meta property="og:url" content="http://example.com/2025/10/12/syzkaller%E8%BF%9B%E9%98%B61/index.html">
+<meta property="og:title" content="syzkaller进阶(syzlang|prog|executor)">
+<meta property="og:url" content="http://example.com/2025/10/12/syzkaller%E8%BF%9B%E9%98%B62/index.html">
 <meta property="og:site_name" content="个人博客">
-<meta property="og:description" content="syzkaller进阶-1poc介绍POC（Proof of Concept，概念验证） 是一段段能够验证某个漏洞、功能或理论可行性的代码、脚本或步骤集合。它的核心作用是 “证明某个问题确实存在，且可被复现”，是漏洞分析、功能验证和技术演示的关键工具。 syz-repro介绍syz-repro 是 syzkaller 工具链里的复现器，拿到一次 crash（或任意 syscall 序列）后，它会在">
+<meta property="og:description" content="syzkaller进阶-2syzlang和syscall description syzlang syzlang 是定义这些系统调用描述的语言，通过 syzlang，用户可以编写模糊测试程序，定义测试数据和序列，用于撰写syscall description的txt格式，同时syzkaller中各系统调用的文本格式也是syzlang语言   syscall description syscall">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-10-12T08:42:34.000Z">
-<meta property="article:modified_time" content="2025-10-12T13:13:50.009Z">
+<meta property="article:published_time" content="2025-10-12T12:39:34.000Z">
+<meta property="article:modified_time" content="2025-10-12T13:19:58.407Z">
 <meta property="article:author" content="yuluoyang">
 <meta property="article:tag" content="syzkaller">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog) - 个人博客</title>
+  <title>syzkaller进阶(syzlang|prog|executor) - 个人博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -213,7 +213,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)"></span>
+            <span id="subtitle" data-typed-text="syzkaller进阶(syzlang|prog|executor)"></span>
           
         </div>
 
@@ -224,8 +224,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-10-12 16:42" pubdate>
-          2025年10月12日 下午
+        <time datetime="2025-10-12 20:39" pubdate>
+          2025年10月12日 晚上
         </time>
       </span>
     
@@ -236,7 +236,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          765 字
+          450 字
         
       </span>
     
@@ -247,7 +247,7 @@
         
         
         
-          7 分钟
+          4 分钟
         
       </span>
     
@@ -293,55 +293,27 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)</h1>
+            <h1 id="seo-header">syzkaller进阶(syzlang|prog|executor)</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="syzkaller进阶-1"><a href="#syzkaller进阶-1" class="headerlink" title="syzkaller进阶-1"></a>syzkaller进阶-1</h1><h2 id="poc介绍"><a href="#poc介绍" class="headerlink" title="poc介绍"></a>poc介绍</h2><p>POC（Proof of Concept，概念验证） 是一段段能够验证某个漏洞、功能或理论可行性的代码、脚本或步骤集合。它的核心作用是 “证明某个问题确实存在，且可被复现”，是漏洞分析、功能验证和技术演示的关键工具。</p>
-<h2 id="syz-repro介绍"><a href="#syz-repro介绍" class="headerlink" title="syz-repro介绍"></a>syz-repro介绍</h2><p>syz-repro 是 syzkaller 工具链里的复现器，拿到一次 crash（或任意 syscall 序列）后，它会在本地 QEMU&#x2F;VM 里反复执行、最小化、并尝试生成稳定可触发 panic 的精简用例，最终输出两种形式的 PoC：</p>
-<ul>
-<li>1.Syz 格式——用 syzkaller DSL 描述的最短系统调用序列</li>
-<li>2.C 格式——把同一序列翻译成可编译运行的 C 程序，方便在没有 syzkaller 的环境下调试。</li>
-</ul>
-<h2 id="syz-repro的使用"><a href="#syz-repro的使用" class="headerlink" title="syz-repro的使用"></a>syz-repro的使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">./bin/syz-repro -config repro.cfg /path/to/crash/log<br>./bin/syz-repro -config repro.cfg -output repro.txt -crepro repro.c -title repro_bug_title.txt /path/to/crash/log<br></code></pre></td></tr></table></figure>
-<blockquote>
-<p>使用syz-repro对log中包含的prog进行复现，这个流程包括</p>
+                <h1 id="syzkaller进阶-2"><a href="#syzkaller进阶-2" class="headerlink" title="syzkaller进阶-2"></a>syzkaller进阶-2</h1><h2 id="syzlang和syscall-description"><a href="#syzlang和syscall-description" class="headerlink" title="syzlang和syscall description"></a>syzlang和syscall description</h2><ul>
+<li>syzlang<blockquote>
+<p>syzlang 是定义这些系统调用描述的语言，通过 syzlang，用户可以编写模糊测试程序，定义测试数据和序列，<br>用于撰写syscall description的txt格式，同时syzkaller中各系统调用的文本格式也是syzlang语言</p>
 </blockquote>
-<ul>
-<li>1.提取出可以触发crash的初始prog</li>
-<li>2.对这个prog进行简化，基本采用的是逐个syscall削减简化</li>
-<li>3.对prog的参数等进行简化</li>
-<li>4.将prog转化为C poc</li>
-<li>5.对C poc进行简化</li>
-</ul>
-<h2 id="crash-log"><a href="#crash-log" class="headerlink" title="crash log"></a>crash log</h2><blockquote>
-<p>crash log（崩溃日志） 是记录内核崩溃事件的关键文件，包含触发崩溃的上下文、错误类型、调用栈等信息，是定位内核漏洞的核心依据</p>
-</blockquote>
-<ul>
-<li>1.触发崩溃的完整系统调用序列（syz 格式）、崩溃上下文，是潜在种子素材</li>
-<li>2.syzkaller 的 syz-executor 主动记录</li>
-<li>3.结构化格式</li>
-<li>4.会带有一些内核打印日志</li>
-</ul>
-<h2 id="程序最小化"><a href="#程序最小化" class="headerlink" title="程序最小化"></a>程序最小化</h2><ul>
-<li>1.初始状态的log包含大量冗余调用的原始序列</li>
-<li>2.syz-repro 会通过 “逐步剔除 + 验证崩溃” 的迭代过程，找到最小化序列<ul>
-<li>首先从log的原始调用中，标记出与崩溃上下文相关的 “高嫌疑调用”</li>
-<li>采用 “二分法” 逐步删除低嫌疑调用，并验证剩余序列是否仍能触发崩溃</li>
-<li>当序列简化到只剩少量调用时，进行 “单调用剔除验证”</li>
-<li>稳定性验证，需要经过 多轮重复执行</li>
-</ul>
 </li>
-<li>最终输出的最小化程序</li>
-</ul>
-<h2 id="syz-prog2c的介绍"><a href="#syz-prog2c的介绍" class="headerlink" title="syz-prog2c的介绍"></a>syz-prog2c的介绍</h2><p>syz-prog2c 是 syzkaller 工具链中的一个实用工具，主要功能是将 syzkaller 生成的 .syz 格式程序（包含系统调用序列的结构化测试用例）转换为 C 语言代码</p>
-<h2 id="syz-prog2c的使用"><a href="#syz-prog2c的使用" class="headerlink" title="syz-prog2c的使用"></a>syz-prog2c的使用</h2><blockquote>
-<p>将syz-repro生成的prog&#x2F;syz文件序转换为C程序</p>
+<li>syscall description<blockquote>
+<p>syscall description 是对系统调用的描述，用于明确系统调用的输入输出及其行为。其意义是编译进入syz-manager等二进制程序中，在模糊测试时为生成有效的系统调用提供参考信息，如语句的格式，参数的范围等等。</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./bin/syz-prog2c -prog repro.syz &gt; repro.c<br></code></pre></td></tr></table></figure>
-<h2 id="syz-execprog的介绍"><a href="#syz-execprog的介绍" class="headerlink" title="syz-execprog的介绍"></a>syz-execprog的介绍</h2><p>syz-execprog 是 syzkaller 工具链中用于执行 .syz 格式测试用例的核心工具，主要负责将 syzkaller 生成的系统调用序列（测试程序）在目标环境中实际运行，并捕获执行过程中的内核行为（如崩溃、异常）。它是连接 “抽象测试用例” 与 “实际内核执行” 的关键组件。</p>
-<h2 id="syz-execprog的使用"><a href="#syz-execprog的使用" class="headerlink" title="syz-execprog的使用"></a>syz-execprog的使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 在目标环境中执行 .syz 程序，并输出详细日志</span><br>./syz-execprog -v -prog ./poc.syz<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="syscall-description举例"><a href="#syscall-description举例" class="headerlink" title="syscall description举例"></a>syscall description举例</h2><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs txt">resource fd_hellodev[fd]<br><br>openat$hellodev(dirfd const[AT_FDCWD], path ptr[in, string[&quot;/dev/hellodev&quot;]], flags flags[open_flags], mode const[0]) fd_hellodev<br><br>read$hellodev(fd fd_hellodev, buf buffer[out], count len[buf])<br>write$hellodev(fd fd_hellodev, buf ptr[in, array[int8]], count len[buf])<br><br>ioctl$DEV_FIFO_CLEAN(fd fd_hellodev, cmd const[0x6b00])<br>ioctl$DEV_FIFO_GETVALUE(fd fd_hellodev, cmd const[0x80046B01], arg ptr[out, int32])<br>ioctl$DEV_FIFO_SETVALUE(fd fd_hellodev, cmd const[0x40046B02], arg ptr[in, int32])<br></code></pre></td></tr></table></figure>
+<h2 id="syzlang-语法"><a href="#syzlang-语法" class="headerlink" title="syzlang 语法"></a>syzlang 语法</h2><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs txt">syscallname &quot;(&quot; [arg [&quot;,&quot; arg]*] &quot;)&quot; [type] [&quot;(&quot; attribute* &quot;)&quot;]<br>arg = argname type<br>argname = identifier<br>type = typename [ &quot;[&quot; type-options &quot;]&quot; ]<br>typename = &quot;const&quot; | &quot;intN&quot; | &quot;intptr&quot; | &quot;flags&quot; | &quot;array&quot; | &quot;ptr&quot; |<br>           &quot;string&quot; | &quot;filename&quot; | &quot;glob&quot; | &quot;len&quot; |<br>           &quot;bytesize&quot; | &quot;bytesizeN&quot; | &quot;bitsize&quot; | &quot;vma&quot; | &quot;proc&quot; |<br>           &quot;compressed_image&quot;<br>type-options = [type-opt [&quot;,&quot; type-opt]]<br></code></pre></td></tr></table></figure>
+<h2 id="种子介绍"><a href="#种子介绍" class="headerlink" title="种子介绍"></a>种子介绍</h2><blockquote>
+<p>种子的来源： 种子是从现有的 corpus.db中提取的。具体的种子生成可以通过工具（如 syz-gemini-seed）实现，这些工具会使用现有的 corpus 数据生成新的程序种子。<br>从 Corpus 到 Candidate： 在 Syzkaller 启动时，所有有效的 seeds 会被加载到 corpus 中。随后，这些有效程序会被转化为 candidate，成为模糊测试的输入。<br>Candidate 的使用： Candidate 被用于模糊测试过程中，作为被执行的程序。如果 candidate 运行成功且没有发现问题，可能会将其再次存入 corpus，形成一个循环反馈。</p>
+</blockquote>
+<h2 id="prog介绍"><a href="#prog介绍" class="headerlink" title="prog介绍"></a>prog介绍</h2>
                 
               </div>
             
@@ -365,8 +337,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)</div>
-      <div>http://example.com/2025/10/12/syzkaller进阶1/</div>
+      <div>syzkaller进阶(syzlang|prog|executor)</div>
+      <div>http://example.com/2025/10/12/syzkaller进阶2/</div>
     </div>
     <div class="license-meta">
       
@@ -410,18 +382,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/10/12/syzkaller%E8%BF%9B%E9%98%B62/" title="syzkaller进阶(syzlang|prog|executor)">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">syzkaller进阶(syzlang|prog|executor)</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/09/09/clang%E5%B8%B8%E8%A7%81%E9%80%89%E9%A1%B9/" title="clang介绍和文件的编译、汇编与链接">
-                        <span class="hidden-mobile">clang介绍和文件的编译、汇编与链接</span>
+                      <a href="/2025/10/12/syzkaller%E8%BF%9B%E9%98%B61/" title="syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)">
+                        <span class="hidden-mobile">syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
