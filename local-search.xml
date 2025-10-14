@@ -14,7 +14,7 @@
     
     <tags>
       
-      <tag>syzkaller</tag>
+      <tag>syzkaller Fuzz</tag>
       
     </tags>
     
@@ -33,7 +33,7 @@
     
     <tags>
       
-      <tag>syzkaller</tag>
+      <tag>syzkaller Fuzz</tag>
       
     </tags>
     
@@ -50,6 +50,12 @@
     
     
     
+    <tags>
+      
+      <tag>llvm clang</tag>
+      
+    </tags>
+    
   </entry>
   
   
@@ -65,7 +71,7 @@
     
     <tags>
       
-      <tag>syzkaller</tag>
+      <tag>syzkaller Fuzz</tag>
       
     </tags>
     
