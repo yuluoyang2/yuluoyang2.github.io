@@ -30,7 +30,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/syzkaller/process_structure.png">
 <meta property="article:published_time" content="2025-08-12T12:53:14.000Z">
-<meta property="article:modified_time" content="2025-10-14T12:52:00.099Z">
+<meta property="article:modified_time" content="2025-10-15T06:16:24.869Z">
 <meta property="article:author" content="yuluoyang">
 <meta property="article:tag" content="syzkaller">
 <meta property="article:tag" content="Fuzz">
@@ -259,7 +259,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          777字
+          1.1k字
         
       </span>
     
@@ -271,7 +271,7 @@
         
         
           <!-- compatible with older versions-->
-          7 分钟
+          10 分钟
         
       </span>
     
@@ -322,7 +322,16 @@
             
               <div class="markdown-body">
                 
-                <h1 id="syzkaller-部署、使用、原理分析"><a href="#syzkaller-部署、使用、原理分析" class="headerlink" title="syzkaller 部署、使用、原理分析"></a>syzkaller 部署、使用、原理分析</h1><h2 id="源码安装"><a href="#源码安装" class="headerlink" title="源码安装"></a>源码安装</h2><h3 id="部署系统依赖组件"><a href="#部署系统依赖组件" class="headerlink" title="部署系统依赖组件"></a>部署系统依赖组件</h3><ul>
+                <h1 id="syzkaller-部署、使用、原理分析"><a href="#syzkaller-部署、使用、原理分析" class="headerlink" title="syzkaller 部署、使用、原理分析"></a>syzkaller 部署、使用、原理分析</h1><h2 id="syzkaller基本架构介绍"><a href="#syzkaller基本架构介绍" class="headerlink" title="syzkaller基本架构介绍"></a>syzkaller基本架构介绍</h2><ul>
+<li>基本架构<br>关于Syzkaller的整体架构如下图所示，此图出自<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/internals.md">How syzkaller works</a>。</li>
+</ul>
+<p><img src="/images/syzkaller/process_structure.png" srcset="/img/loading.gif" lazyload alt="alt text"></p>
+<h2 id="基本模块介绍"><a href="#基本模块介绍" class="headerlink" title="基本模块介绍"></a>基本模块介绍</h2><ul>
+<li>syz-manager进程负责启动、监控和重新启动多个虚拟机实例，并在虚拟机内部启动一个syz-fuzzer进程（通过ssh调用syz-fuzzer进程）。syz-manager还负责持久性语料库和崩溃存储。它在宿主机上运行</li>
+<li>syz-fuzzer进程运行在虚拟机中。负责引导Fuzz测试过程（输入生成、变异、最小化等），并通过RPC将触发新覆盖范围的输入发送回syz-manager进程（syz-fuzzer进程和syz-manager进程通过RPC进行通信）。它还启动瞬态的syz-executor进程。</li>
+<li>syz-executor进程执行单个输入。它从syz-fuzzer进程接受要执行的程序以及其对应的测试输入参数，并将测试结果发送回来。</li>
+</ul>
+<h2 id="源码安装"><a href="#源码安装" class="headerlink" title="源码安装"></a>源码安装</h2><h3 id="部署系统依赖组件"><a href="#部署系统依赖组件" class="headerlink" title="部署系统依赖组件"></a>部署系统依赖组件</h3><ul>
 <li>首先更新软件源</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt update<br></code></pre></td></tr></table></figure>
@@ -348,7 +357,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># cd / 回到主目录</span><br>wget https://dl.google.com/go/go1.20.1.linux-amd64.tar.gz<br>tar -xf go1.20.1.linux-amd64.tar.gz<br><span class="hljs-built_in">export</span> GOROOT=`<span class="hljs-built_in">pwd</span>`/go<br><span class="hljs-built_in">export</span> GOPATH=<span class="hljs-variable">$HOME</span>/go  <span class="hljs-comment"># 工作目录，可自定义</span><br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$GOROOT</span>/bin:<span class="hljs-variable">$GOPATH</span>/bin:<span class="hljs-variable">$PATH</span><br>go version <span class="hljs-comment">#判断是否安装成功</span><br></code></pre></td></tr></table></figure>
 <h3 id="使用源码安装syzkaller"><a href="#使用源码安装syzkaller" class="headerlink" title="使用源码安装syzkaller"></a>使用源码安装syzkaller</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># cd / 回到主目录</span><br>git <span class="hljs-built_in">clone</span> https://github.com/google/syzkaller.git<br><span class="hljs-built_in">cd</span> syzkaller/<br>make<br>tree ./bin/<br></code></pre></td></tr></table></figure>
 <p>在Syzkaller目录下会出现一个bin目录，此目录中的内容如下图所示</p>
-<p><img src="/../_posts/syzkaller%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/image1.png" srcset="/img/loading.gif" lazyload alt="我是图片"></p>
+<p><img src="/images/syzkaller/image0-1.png" srcset="/img/loading.gif" lazyload alt="我是图片"></p>
 <h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><h3 id="下载编译测试内核"><a href="#下载编译测试内核" class="headerlink" title="下载编译测试内核"></a>下载编译测试内核</h3><ul>
 <li>下载内核</li>
 </ul>
@@ -368,6 +377,8 @@
 <li>编译linux内核</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">make olddefconfig <span class="hljs-comment">#基于现有配置，自动处理新版本内核中新增的配置选项，生成一个与当前内核版本兼容的配置文件。</span><br>make -j4<br><span class="hljs-built_in">ls</span> vmlinux  <span class="hljs-comment">#未压缩的原始内核可执行文件</span><br><span class="hljs-built_in">ls</span> <span class="hljs-built_in">arch</span>/x86/boot/bzImage  <span class="hljs-comment">#压缩后的内核镜像</span><br></code></pre></td></tr></table></figure>
+<p>如图所示:</p>
+<p><img src="/images/syzkaller/image0-2.png" srcset="/img/loading.gif" lazyload alt="图片2"></p>
 <h2 id="配置测试虚拟机"><a href="#配置测试虚拟机" class="headerlink" title="配置测试虚拟机"></a>配置测试虚拟机</h2><h3 id="内核部署到虚拟机"><a href="#内核部署到虚拟机" class="headerlink" title="内核部署到虚拟机"></a>内核部署到虚拟机</h3><ul>
 <li>更新软件源</li>
 </ul>
@@ -378,14 +389,25 @@
 </blockquote>
 </li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkdir</span> image-test<br><span class="hljs-built_in">cd</span> image-test/<br>wget https://raw.githubusercontent.com/google/syzkaller/master/tools/create-image.sh -O create-image.sh<br><span class="hljs-built_in">chmod</span> +x create-image.sh<br>./create-image.sh<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkdir</span> image<br><span class="hljs-built_in">cd</span> image<br>wget https://raw.githubusercontent.com/google/syzkaller/master/tools/create-image.sh -O create-image.sh<br><span class="hljs-built_in">chmod</span> +x create-image.sh<br>./create-image.sh<br></code></pre></td></tr></table></figure>
+<p>构建成功之后如图所示：</p>
+<p><img src="/images/syzkaller/image0-3.png" srcset="/img/loading.gif" lazyload alt="image3"></p>
 <ul>
 <li>运行虚拟机<blockquote>
 <p>最简单的脚本</p>
 </blockquote>
 </li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># boot.sh 运行</span><br>qemu-system-x86_64 \<br>    -m 2G \<br>    -smp 2 \<br>    -kernel /home/yuluoyang/linux/arch/x86/boot/bzImage \<br>    -append <span class="hljs-string">&quot;console=ttyS0 root=/dev/sda earlyprintk=serial net.ifnames=0&quot;</span> \<br>    -drive file=/home/yuluoyang/image-test/bullseye.img,format=raw \<br>    -net user,hostfwd=tcp:127.0.0.1:10021-:22 \<br>    -net nic,model=e1000 \<br>    -enable-kvm \<br>    -nographic \<br>    -pidfile /home/yuluoyang/vm.pid 2&gt;&amp;1 | <span class="hljs-built_in">tee</span> /home/yuluoyang/vm.log<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># boot.sh 运行</span><br><span class="hljs-comment">#!/bin/bash</span><br><br>KERNEL=./linux-5.14<br>IMAGE=./image<br>SHARE=./src<br><br><span class="hljs-comment"># 检查端口是否被占用</span><br><span class="hljs-keyword">if</span> lsof -i :10021 &amp;&gt;/dev/null; <span class="hljs-keyword">then</span><br>  <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Port 10021 busy, killing old qemu&quot;</span><br>  pkill -f qemu-system-x86_64 || <span class="hljs-literal">true</span><br>  <span class="hljs-built_in">sleep</span> 1<br><span class="hljs-keyword">fi</span><br><span class="hljs-comment"># 开启9p共享</span><br>qemu-system-x86_64 \<br>  -m 4096 \<br>  -smp sockets=1,cores=4,threads=1 \<br>  -netdev user,<span class="hljs-built_in">id</span>=net0,hostfwd=tcp:127.0.0.1:10021-:22 \<br>  -drive file=<span class="hljs-variable">$IMAGE</span>/bullseye.img,format=raw \<br>  -kernel <span class="hljs-variable">$KERNEL</span>/arch/x86/boot/bzImage \<br>  -append <span class="hljs-string">&quot;console=ttyS0 root=/dev/sda earlyprintk=serial net.ifnames=1&quot;</span> \<br>  -enable-kvm \<br>  -nographic \<br>  -device e1000,netdev=net0 \<br>  -fsdev <span class="hljs-built_in">local</span>,<span class="hljs-built_in">id</span>=fsdev0,path=<span class="hljs-variable">$SHARE</span>,security_model=passthrough \<br>  -device virtio-9p-pci,fsdev=fsdev0,mount_tag=hostshare \<br>  -pidfile vm.pid \<br>  2&gt;&amp;1 | <span class="hljs-built_in">tee</span> vm.log<br><br></code></pre></td></tr></table></figure>
+<p>效果如下：</p>
+<p><img src="/images/syzkaller/image0-4.png" srcset="/img/loading.gif" lazyload alt="image4"></p>
+<blockquote>
+<p>退出命令为 init 0</p>
+</blockquote>
+<blockquote>
+<p>9p共享命令：</p>
+</blockquote>
+<p><code>mount -t 9p -o rw,trans=virto hostshare host_share</code></p>
 <blockquote>
 <p>内核（-kernel） 是 “操作系统核心”，负责硬件管理和底层功能</p>
 </blockquote>
@@ -423,10 +445,11 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> syzkaller<br><span class="hljs-built_in">sudo</span> ./bin/syz-manager -config=setting.cfg<br></code></pre></td></tr></table></figure>
 <ul>
 <li>监控数据上传<blockquote>
-<p>访问 <a target="_blank" rel="noopener" href="http://127.0.0.1:56741/">链接</a></p>
+<p>访问 <a target="_blank" rel="noopener" href="http://127.0.0.1:56741/">http:127.0.0.1:56741</a></p>
 </blockquote>
 </li>
 </ul>
+<p>实时的运行结果会输出到“setting.cfg”文件中指定的“fuzzdir”目录（虚拟机中）中：</p>
 
                 
               </div>
