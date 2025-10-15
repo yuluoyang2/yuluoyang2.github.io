@@ -30,7 +30,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/syzkaller/process_structure.png">
 <meta property="article:published_time" content="2025-08-12T12:53:14.000Z">
-<meta property="article:modified_time" content="2025-10-15T06:51:40.822Z">
+<meta property="article:modified_time" content="2025-10-15T06:57:33.730Z">
 <meta property="article:author" content="yuluoyang">
 <meta property="article:tag" content="syzkaller">
 <meta property="article:tag" content="Fuzz">
@@ -325,7 +325,7 @@
                 <h1 id="syzkaller-部署、使用、原理分析"><a href="#syzkaller-部署、使用、原理分析" class="headerlink" title="syzkaller 部署、使用、原理分析"></a>syzkaller 部署、使用、原理分析</h1><h2 id="syzkaller基本架构介绍"><a href="#syzkaller基本架构介绍" class="headerlink" title="syzkaller基本架构介绍"></a>syzkaller基本架构介绍</h2><ul>
 <li>基本架构<br>关于Syzkaller的整体架构如下图所示，此图出自<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/internals.md">How syzkaller works</a>。</li>
 </ul>
-<p><img src="/images/syzkaller/old_structure.png" srcset="/img/loading.gif" lazyload alt="syzkaller 旧版架构图"><br><img src="/images/syzkaller/process_structure.png" srcset="/img/loading.gif" lazyload alt="syzkaller 新版架构图"></p>
+<p><img src="/images/syzkaller/old_structre.png" srcset="/img/loading.gif" lazyload alt="syzkaller 旧版架构图"><br><img src="/images/syzkaller/process_structure.png" srcset="/img/loading.gif" lazyload alt="syzkaller 新版架构图"></p>
 <h2 id="基本模块介绍"><a href="#基本模块介绍" class="headerlink" title="基本模块介绍"></a>基本模块介绍</h2><ul>
 <li>syz-manager进程负责启动、监控和重新启动多个虚拟机实例，并在虚拟机内部启动一个syz-fuzzer进程（通过ssh调用syz-fuzzer进程）。syz-manager还负责持久性语料库和崩溃存储。它在宿主机上运行</li>
 <li>syz-fuzzer进程运行在虚拟机中。负责引导Fuzz测试过程（输入生成、变异、最小化等），并通过RPC将触发新覆盖范围的输入发送回syz-manager进程（syz-fuzzer进程和syz-manager进程通过RPC进行通信）。它还启动瞬态的syz-executor进程。</li>
