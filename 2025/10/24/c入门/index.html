@@ -30,7 +30,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/C/image0.png">
 <meta property="article:published_time" content="2025-10-24T06:05:05.000Z">
-<meta property="article:modified_time" content="2025-10-25T09:23:55.601Z">
+<meta property="article:modified_time" content="2025-10-25T09:31:31.369Z">
 <meta property="article:author" content="yuluoyang">
 <meta property="article:tag" content="c">
 <meta name="twitter:card" content="summary_large_image">
@@ -258,7 +258,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          3k字
+          3.1k字
         
       </span>
     
@@ -379,13 +379,13 @@
 <p>  <del>懂得都懂</del></p>
 </li>
 <li><p>typedef</p>
-<p>  是给数据类型起⼀个别名，让程序的可读性更⾼,常用用法如下</p>
-  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-type">int</span> <span class="hljs-type">len_t</span>;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> <span class="hljs-type">uint8_t</span><br><span class="hljs-type">uint32_t</span><br></code></pre></td></tr></table></figure>
+<p>  是给数据类型起⼀个别名，让程序的可读性更高,常用用法如下</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span>  <span class="hljs-type">uint8_t</span>;   <span class="hljs-comment">/* &lt;stdint.h&gt; 同款   */</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> <span class="hljs-type">uint16_t</span>;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>   <span class="hljs-type">uint32_t</span>;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>  <span class="hljs-type">uint64_t</span>;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">signed</span> <span class="hljs-type">char</span>    <span class="hljs-type">int8_t</span>;<br></code></pre></td></tr></table></figure>
 </li>
-<li><p>auto</p>
+<li><p>auto<br>  <del>实际上是不会</del></p>
 </li>
 <li><p>register</p>
-<p>  register关键字是⼀个建议性关键字。想要定义的变量放到cpu的寄存器中,但是一般很难做到，寄存器的值不能使用<code>&amp;</code>取地址了</p>
+<p>  register关键字是⼀个建议性关键字。想要定义的变量放到cpu的寄存器中,但是一般很难做到，寄存器的值不能使用<code>&amp;</code>取地址了<del>没用过</del></p>
 </li>
 <li><p>static</p>
 <p>  <del>C++和C的static有些区别</del></p>
@@ -399,13 +399,19 @@
 <p>  extern “C”，⽤C++的编译器按照C的规则进⾏编译。C++和C在编译规则上有很多不<br>  同，所以在C++中想完全复用C写的代码，就可以使用extern”C”来修饰，在C++使用C的lib库的<br>  时候比较常见</p>
   <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-type">void</span><br>__sanitizer_cov_trace_pc_guard_init(<span class="hljs-type">uint32_t</span> *start, <span class="hljs-type">uint32_t</span> *stop)<br>&#123;<br>    <span class="hljs-type">uint32_t</span> index = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> *p = start; p &lt; stop; ++p) *p = ++index;<br>    __sancov_current_all_guard_count = stop - start;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Sanitizer All Coverage edges: %u\n&quot;</span>, __sancov_current_all_guard_count);<br>&#125;<br><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-type">void</span><br>__sanitizer_cov_trace_pc_guard(<span class="hljs-type">uint32_t</span> *guard)<br>&#123;<br>    <span class="hljs-keyword">if</span> (!*guard) <span class="hljs-keyword">return</span>;          <br>    <span class="hljs-type">void</span> *PC = __builtin_return_address(<span class="hljs-number">0</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;guard: %p %u  PC: %p\n&quot;</span>, guard, *guard, PC);<br>    ++__sancov_current_execute_guard_count;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>  <strong>以后更新</strong>还有很多不熟的地方，但是自己也没怎么用过，理解也不是很深刻</p>
+<p>  <strong>以后可能更新</strong>，还有很多不熟的地方，但是自己也没怎么用过，理解也不是很深刻</p>
 </li>
 <li><p>const</p>
 <p>  准确的理解应该是<strong>read only</strong>，可以修饰变量和指针<br>  近水楼台先得月 </p>
   <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">const</span> <span class="hljs-type">int</span> * a; <span class="hljs-comment">//靠近* (*a) 不能改变</span><br><span class="hljs-type">int</span> <span class="hljs-type">const</span> * b;<span class="hljs-comment">// 靠近* (*b) 不能改变 </span><br><span class="hljs-type">int</span> * <span class="hljs-type">const</span> c;<span class="hljs-comment">// 靠近 c  c指针指向的地址不能变</span><br><span class="hljs-type">const</span> <span class="hljs-type">int</span> *<span class="hljs-type">const</span> d;<span class="hljs-comment">// 都不能变</span><br></code></pre></td></tr></table></figure>
 
-<p>  const设计的初衷就是为了代替宏，消除它的缺点，继承它的优点</p>
+<p>  const设计的初衷就是为了代替宏，消除它的缺点，继承它的优点<br>  <strong>也是不熟</strong></p>
+</li>
+<li><p>define</p>
+<ul>
+<li>宏定义</li>
+<li>宏函数</li>
+</ul>
 </li>
 <li><p>volatile</p>
 <p>  volatile关键字常用于避免编译器优化，主要用于处理硬件寄存器、中断服务程序和多线程等情况，<br>  如果有地方读取buff的值的时候，都需要从内存中读取</p>
@@ -442,8 +448,8 @@
 </li>
 </ul>
 <p><del>感觉没什么好写的</del>以后补充吧</p>
-<h2 id="C与面向对象"><a href="#C与面向对象" class="headerlink" title="C与面向对象"></a>C与面向对象</h2><p>C语言是面向过程的语言，但我们可以借助C++等语言的面向对象思想，实现类似”继承”、”多态”、”封装”、”重载”的功能。从而服务于架构设计<del>内核源码</del>。</p>
-<h3 id="C与继承"><a href="#C与继承" class="headerlink" title="C与继承"></a>C与继承</h3><p>利用结构体来实现继承，c++里面的成员变量就是c的结构体变量，c++的成员函数就是c的结构体指针，但是c在实例化的时候需要进行初始化(变量赋值，函数指针绑定)</p>
+<h2 id="C与面向对象"><a href="#C与面向对象" class="headerlink" title="C与面向对象"></a>C与面向对象</h2><p>C语言是面向过程的语言，但我们可以借助C++等语言的面向对象思想，实现类似”继承”、”多态”、”封装”、”重载”的功能。从而服务于架构设计<del>阅读内核源码</del>。</p>
+<h3 id="C与继承"><a href="#C与继承" class="headerlink" title="C与继承"></a>C与继承</h3><p>利用结构体来实现继承，c++里面的成员变量就是c的结构体变量，c++的成员函数就是c的函数指针，C++继承的父类就是c包含的父类结构体，保证首地址一致原则，c在实例化的时候需要进行初始化(变量赋值，函数指针绑定)</p>
 <ul>
 <li>示例1：</li>
 </ul>
