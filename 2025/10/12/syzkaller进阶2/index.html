@@ -30,7 +30,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/test.jpg">
 <meta property="article:published_time" content="2025-10-12T12:39:34.000Z">
-<meta property="article:modified_time" content="2025-10-14T12:51:16.533Z">
+<meta property="article:modified_time" content="2025-11-11T13:28:54.150Z">
 <meta property="article:author" content="yuluoyang">
 <meta property="article:tag" content="syzkaller">
 <meta property="article:tag" content="Fuzz">
@@ -259,7 +259,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          450字
+          759字
         
       </span>
     
@@ -271,7 +271,7 @@
         
         
           <!-- compatible with older versions-->
-          4 分钟
+          7 分钟
         
       </span>
     
@@ -334,9 +334,12 @@
 </ul>
 <h2 id="syscall-description举例"><a href="#syscall-description举例" class="headerlink" title="syscall description举例"></a>syscall description举例</h2><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs txt">resource fd_hellodev[fd]<br><br>openat$hellodev(dirfd const[AT_FDCWD], path ptr[in, string[&quot;/dev/hellodev&quot;]], flags flags[open_flags], mode const[0]) fd_hellodev<br><br>read$hellodev(fd fd_hellodev, buf buffer[out], count len[buf])<br>write$hellodev(fd fd_hellodev, buf ptr[in, array[int8]], count len[buf])<br><br>ioctl$DEV_FIFO_CLEAN(fd fd_hellodev, cmd const[0x6b00])<br>ioctl$DEV_FIFO_GETVALUE(fd fd_hellodev, cmd const[0x80046B01], arg ptr[out, int32])<br>ioctl$DEV_FIFO_SETVALUE(fd fd_hellodev, cmd const[0x40046B02], arg ptr[in, int32])<br></code></pre></td></tr></table></figure>
 <h2 id="syzlang-语法"><a href="#syzlang-语法" class="headerlink" title="syzlang 语法"></a>syzlang 语法</h2><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs txt">syscallname &quot;(&quot; [arg [&quot;,&quot; arg]*] &quot;)&quot; [type] [&quot;(&quot; attribute* &quot;)&quot;]<br>arg = argname type<br>argname = identifier<br>type = typename [ &quot;[&quot; type-options &quot;]&quot; ]<br>typename = &quot;const&quot; | &quot;intN&quot; | &quot;intptr&quot; | &quot;flags&quot; | &quot;array&quot; | &quot;ptr&quot; |<br>           &quot;string&quot; | &quot;filename&quot; | &quot;glob&quot; | &quot;len&quot; |<br>           &quot;bytesize&quot; | &quot;bytesizeN&quot; | &quot;bitsize&quot; | &quot;vma&quot; | &quot;proc&quot; |<br>           &quot;compressed_image&quot;<br>type-options = [type-opt [&quot;,&quot; type-opt]]<br></code></pre></td></tr></table></figure>
-<h2 id="种子介绍"><a href="#种子介绍" class="headerlink" title="种子介绍"></a>种子介绍</h2><blockquote>
-<p>种子的来源： 种子是从现有的 corpus.db中提取的。具体的种子生成可以通过工具（如 syz-gemini-seed）实现，这些工具会使用现有的 corpus 数据生成新的程序种子。<br>从 Corpus 到 Candidate： 在 Syzkaller 启动时，所有有效的 seeds 会被加载到 corpus 中。随后，这些有效程序会被转化为 candidate，成为模糊测试的输入。<br>Candidate 的使用： Candidate 被用于模糊测试过程中，作为被执行的程序。如果 candidate 运行成功且没有发现问题，可能会将其再次存入 corpus，形成一个循环反馈。</p>
-</blockquote>
+<h2 id="初始语料库corpus和种子-seed"><a href="#初始语料库corpus和种子-seed" class="headerlink" title="初始语料库corpus和种子(seed)"></a>初始语料库corpus和种子(seed)</h2><ul>
+<li>种子的来源：<br>  有的是历史上触发过新路径&#x2F;崩溃的程序,有的种子生成可以通过工具（如 syz-gemini-seed）实现，这些工具会使用现有的 corpus 数据生成新的程序种子。Fuzz测试的种子是从现有的 corpus.db中提取的。如果此语料库不存在则创建一个新的空语料库文件。</li>
+<li>初始化语料库 (Corpus Initialization)：<br>  在 RunManager 函数启动时，Syzkaller 会调用 preloadCorpus() 函数。这个函数从磁盘加载已保存的语料库数据。如果此语料库不存在则创建一个新的空语料库文件。在我们的测试中，工作目录通常设置为“&#x2F;syzkaller&#x2F;workdir&#x2F;”。具体实现中，manager.LoadSeeds 函数用于从配置的工作目录中加载语料库文件（corpus.db）以及程序种子</li>
+<li>Candidate 的使用：<br>  在 Syzkaller 启动时，所有有效的 seeds 会被加载到 corpus 中。随后，这些有效程序会被转化为 candidate，这个过程通常是在 mgr.loadCorpus() 函数中实现的，该函数会从 corpus 中提取所有有效程序并将其转化为 candidate。成为模糊测试的输入。Candidate 被用于模糊测试过程中，作为被执行的程序。如果 candidate 运行成功且没有发现问题，可能会将其再次存入 corpus，形成一个循环反馈。</li>
+<li>加载种子文件：<br>  这些种子文件都是由作者事先设计好的，存储在”&#x2F;syzkaller&#x2F;sys&#x2F;target&#x2F;test&#x2F;“中，其中”target”就是我们进行Fuzz测试的目标，在我们的例子中，由于测试的是Linux系统，所以”target”的值为“linux”。我们可以使用这些定义好的种子文件中的内容，对目标进行Fuzz和变异以获得更高的覆盖率</li>
+</ul>
 <h2 id="prog介绍"><a href="#prog介绍" class="headerlink" title="prog介绍"></a>prog介绍</h2>
                 
               </div>
