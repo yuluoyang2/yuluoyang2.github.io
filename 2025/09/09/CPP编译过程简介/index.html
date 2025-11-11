@@ -21,24 +21,25 @@
   <meta name="author" content="yuluoyang">
   <meta name="keywords" content="">
   
-    <meta name="description" content="期待更新.....">
+    <meta name="description" content="文件的编译、汇编与链接和clang介绍">
 <meta property="og:type" content="article">
-<meta property="og:title" content="llvm入门教学(Code Coverage,SanitizerCoverage)">
-<meta property="og:url" content="http://example.com/2025/08/07/llvm%E4%BB%A3%E7%A0%81%E8%A6%86%E7%9B%96%E7%8E%87%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:title" content="C++ 的编译过程简介">
+<meta property="og:url" content="http://example.com/2025/09/09/CPP%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B%E7%AE%80%E4%BB%8B/index.html">
 <meta property="og:site_name" content="个人博客">
-<meta property="og:description" content="期待更新.....">
+<meta property="og:description" content="文件的编译、汇编与链接和clang介绍">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/images/llvm/llvm_structure.jpg">
-<meta property="article:published_time" content="2025-08-07T07:19:55.000Z">
-<meta property="article:modified_time" content="2025-11-11T12:48:32.638Z">
+<meta property="og:image" content="http://example.com/images/llvm/clang.jpg">
+<meta property="article:published_time" content="2025-09-09T12:13:45.000Z">
+<meta property="article:modified_time" content="2025-11-11T12:51:18.875Z">
 <meta property="article:author" content="yuluoyang">
 <meta property="article:tag" content="llvm">
+<meta property="article:tag" content="clang">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/images/llvm/llvm_structure.jpg">
+<meta name="twitter:image" content="http://example.com/images/llvm/clang.jpg">
   
   
   
-  <title>llvm入门教学(Code Coverage,SanitizerCoverage) - 个人博客</title>
+  <title>C++ 的编译过程简介 - 个人博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -229,7 +230,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="llvm入门教学(Code Coverage,SanitizerCoverage)"></span>
+            <span id="subtitle" data-typed-text="C++ 的编译过程简介"></span>
           
         </div>
 
@@ -245,8 +246,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-08-07 15:19" pubdate>
-          星期四, 八月 7日 2025, 3:19 下午
+        <time datetime="2025-09-09 20:13" pubdate>
+          星期二, 九月 9日 2025, 8:13 晚上
         </time>
       </span>
     
@@ -258,7 +259,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          891字
+          522字
         
       </span>
     
@@ -270,7 +271,7 @@
         
         
           <!-- compatible with older versions-->
-          8 分钟
+          5 分钟
         
       </span>
     
@@ -316,68 +317,30 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">llvm入门教学(Code Coverage,SanitizerCoverage)</h1>
+            <h1 id="seo-header">C++ 的编译过程简介</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="LLVM-代码覆盖率入门"><a href="#LLVM-代码覆盖率入门" class="headerlink" title="LLVM 代码覆盖率入门"></a>LLVM 代码覆盖率入门</h1><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><ul>
-<li>安装Clang和LLVM工具链<br>安装clang和llvm clang和llvm版本要一致，这里使用16版本</li>
+                <h2 id="C-的编译过程简介"><a href="#C-的编译过程简介" class="headerlink" title="C++ 的编译过程简介"></a>C++ 的编译过程简介</h2><ol>
+<li><p>预处理</p>
+<p>  编译器对代码进行预处理，预处理源代码中带有<code>#</code>的语句，展开头文件(#include)和宏定义(#define),每个<code>cpp</code>文件预编译变成<code>cpp&#39;</code>(.ii)文件，生成编译程序可以处理的文本文件。</p>
+</li>
+<li><p>编译(compile)+汇编<br>   预处理后的每个源程序被编译成汇编语言，再由汇编器把汇编语言转换为机器码，生成对应的二进制文件(object文件)，在此过程中要求编译器能够识别每个标识符，知道其各自的类型，含义，但是不要求知道具体的位置在哪。在预处理和编译过程中，每个源文件都是分别执行的，只需要确定每个标识符存在即可。</p>
+</li>
+<li><p>链接（linking）<br>   编译器将多个目标文件及库文件链接在一起，对整个程序范围内，确定各标志符所代表的地址，如变量，函数入口，生成可执行文件，在此过程中，要求编译器能够确定每个标识符所对应的含义或者地址</p>
+</li>
+<li><p>make工具说明<br>   myapp.exe link.exe 1.obj 2.obj 3.obj … 88.obj<br>   1.obj cc.exe 1.cpp 2.hpp 1.hpp<br>   2.obj cc.exe 2.cpp 2.hpp 4.hpp<br>   3.obj cc.exe 3.cpp 2.hpp 3.hpp<br>   …<br>   88.obj cc.exe 88.cpp 2.hpp 88.hpp</p>
+<p>   该工具根据时间戳判断是否有新的修改，若有新的修改则重新编译，可以加快编译速度</p>
+</li>
+<li><p>C++多文件构成<br>   实现文件(cpp)+头文件(hpp)&#x3D;可执行文件<br>   入口函数<code>main</code>是普通可执行程序的起始函数<code>main(int argc,const char* argv[])</code>或者<code>main(void)</code><br>   myapp.exe 默认第一个参数是自己本身，<code>agrc=1</code> argv[0]&#x3D;<code>/myapp.exe</code>地址</p>
+</li>
+</ol>
+<h3 id="多文件编译实战"><a href="#多文件编译实战" class="headerlink" title="多文件编译实战"></a>多文件编译实战</h3><h2 id="多文件编译-–-分步编译"><a href="#多文件编译-–-分步编译" class="headerlink" title="多文件编译 – 分步编译"></a>多文件编译 – 分步编译</h2><ul>
+<li>单独编译每个源文件为目标文件，使用 -c 选项（仅编译不链接），生成二进制目标文件</li>
+<li>链接目标文件生成可执行文件，将所有目标文件链接起来，生成最终可执行文件</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt install update<br><span class="hljs-built_in">sudo</span> apt install clang-16 llvm-16<br></code></pre></td></tr></table></figure>
-<ul>
-<li>检测是否安装成功</li>
-</ul>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">clang-16 --version <br>clang++-16 --version<br>llvm-config-16 --version  <br></code></pre></td></tr></table></figure>
-<h2 id="CodeCoverage-插桩"><a href="#CodeCoverage-插桩" class="headerlink" title="CodeCoverage 插桩"></a>CodeCoverage 插桩</h2><h3 id="1-简介"><a href="#1-简介" class="headerlink" title="1.简介"></a>1.简介</h3><p>LLVM的Code Coverage工具集包括以下主要组件</p>
-<ul>
-<li>Clang编译器：用于编译源代码并生成覆盖率信息。</li>
-<li>LLVM覆盖率工具：如llvm-profdata和llvm-cov，用于处理和报告覆盖率数据</li>
-</ul>
-<h3 id="2-使用"><a href="#2-使用" class="headerlink" title="2.使用"></a>2.使用</h3><ul>
-<li>准备一个test.c文件，计算该程序运行时的覆盖率</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br> <br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>    <span class="hljs-type">int</span> a, b;<br>    <span class="hljs-type">char</span> op;<br>    <span class="hljs-type">int</span> result;<br>    <span class="hljs-built_in">scanf</span>(<span class="hljs-string">&quot;%d%c%d&quot;</span>, &amp;a, &amp;op, &amp;b);<br>    <span class="hljs-keyword">switch</span> (op) &#123;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;+&#x27;</span>:<br>            result = a + b;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;-&#x27;</span>:<br>            result = a - b;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;*&#x27;</span>:<br>            result = a * b;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;/&#x27;</span>:<br>            result = a / b;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">default</span>:<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>    &#125;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d\n&quot;</span>, result);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<ul>
-<li>编译带插桩的代码</li>
-</ul>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">clang-16 -fprofile-instr-generate -fcoverage-mapping test.c -o <span class="hljs-built_in">test</span><br></code></pre></td></tr></table></figure>
-<p> <code>-fprofile-instr-generate</code> :让编译器在生成的可执行文件中插入覆盖率跟踪代码,编译后，程序运行时会自动记录哪些函数、语句、分支被执行过，并将这些信息写入一个默认名为 default.profraw 的二进制文件中</p>
-<p><code>-fcoverage-mapping</code> :让编译器生成代码覆盖率映射信息，并嵌入到可执行文件中。这些信息描述了源代码（如 test.c）的结构（函数、行号、分支等）与编译后机器码的对应关系，是后续将覆盖率数据（.profraw）关联回源代码的关键</p>
-<ul>
-<li>运行编译后的程序以生成覆盖率数据文件</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">LLVM_PROFILE_FILE=<span class="hljs-string">&quot;test.profraw&quot;</span> <span class="hljs-comment">#环境变量设置，用于指定 Clang 编译的程序在运行时生成的原始覆盖率数据文件的路径和名称</span><br>./test<br></code></pre></td></tr></table></figure>
-<ul>
-<li>合并生成的覆盖率数据文件</li>
-</ul>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stata">llvm-profdata-16 <span class="hljs-keyword">merge</span> -sparse <span class="hljs-keyword">test</span>.profraw -o <span class="hljs-keyword">test</span>.profdata<br></code></pre></td></tr></table></figure>
-<p><code>llvm-profdata</code>：LLVM 提供的覆盖率数据处理工具，负责管理和转换覆盖率数据格式</p>
-<p><code>-sparse</code>：选项，指定使用 “稀疏模式” 合并数据。</p>
-<ul>
-<li>生成并查看执行情况和覆盖率报告</li>
-</ul>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">llvm-cov-16 show ./test -instr-profile=test.profdata<br>llvm-cov-16 report ./test -instr-profile=test.profdata<br></code></pre></td></tr></table></figure>
-<p><code>llvm-cov</code>:分析覆盖率信息</p>
-<p><code>-instr-profile</code>:指定输入的覆盖率数据文件</p>
-<h2 id="SanitizerCoverage-插桩"><a href="#SanitizerCoverage-插桩" class="headerlink" title="SanitizerCoverage 插桩"></a>SanitizerCoverage 插桩</h2><h3 id="1-简介-1"><a href="#1-简介-1" class="headerlink" title="1.简介"></a>1.简介</h3><p>SanitizerCoverage 是一种代码覆盖工具，设计用于支持基于 fuzzing 的测试和其他安全相关工具。SanitizerCoverage 在编译时插桩代码，以在运行时收集覆盖信息，从而帮助识别未覆盖的代码路径，提高测试的有效性和全面性。</p>
-<h3 id="2-使用-1"><a href="#2-使用-1" class="headerlink" title="2.使用"></a>2.使用</h3><ul>
-<li>准备一个test.cpp测试文件，计算该程序运行时的覆盖率</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-type">uint32_t</span> __sancov_current_all_guard_count = <span class="hljs-number">0</span>; <span class="hljs-comment">// 所有的分支数量</span><br><span class="hljs-type">uint32_t</span> __sancov_current_execute_guard_count = <span class="hljs-number">0</span>; <span class="hljs-comment">//执行的分支数量</span><br><br><span class="hljs-comment">/* 你只需要这个签名完全匹配，就会被 Clang 生成的调用点使用 */</span><br><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-type">void</span><br>__sanitizer_cov_trace_pc_guard_init(<span class="hljs-type">uint32_t</span> *start, <span class="hljs-type">uint32_t</span> *stop)<br>&#123;<br>    <span class="hljs-type">uint32_t</span> index = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> *p = start; p &lt; stop; ++p) *p = ++index;<br>    __sancov_current_all_guard_count = stop - start;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Sanitizer All Coverage edges: %u\n&quot;</span>, __sancov_current_all_guard_count);<br>&#125;<br><br><span class="hljs-comment">/* 运行时探针 */</span><br><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-type">void</span><br>__sanitizer_cov_trace_pc_guard(<span class="hljs-type">uint32_t</span> *guard)<br>&#123;<br>    <span class="hljs-keyword">if</span> (!*guard) <span class="hljs-keyword">return</span>;          <br>    <span class="hljs-type">void</span> *PC = __builtin_return_address(<span class="hljs-number">0</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;guard: %p %u  PC: %p\n&quot;</span>, guard, *guard, PC);<br>    ++__sancov_current_execute_guard_count;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">function1</span><span class="hljs-params">(<span class="hljs-type">int</span> a)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//san1</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-number">1</span> == a) <br>        <span class="hljs-comment">//san2</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">else</span>&#123;<br>        <span class="hljs-comment">//san3</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>    <br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">function2</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//san4</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>        <span class="hljs-comment">// san5</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">rand</span>() % <span class="hljs-number">2</span>)<br>        <span class="hljs-comment">//san6</span><br>        <span class="hljs-built_in">function1</span>(<span class="hljs-built_in">rand</span>() % <span class="hljs-number">3</span>);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-comment">//san7</span><br>        <span class="hljs-built_in">function2</span>();<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;executed guards: %u / %u\n&quot;</span>,<br>           __sancov_current_execute_guard_count,<br>           __sancov_current_all_guard_count);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-<ul>
-<li>编译时插入桩代码</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">clang++-16 -fsanitize-coverage=trace-pc-guard test.cpp -g -o test_case<br></code></pre></td></tr></table></figure>
-<p><code>-fsanitize=address</code>:启动ASAN，LLVM 提供的一种内存错误检测工具</p>
-<p><code>-fsanitize-coverage</code>&#x3D;trace-pc-guard:为每个基本块（代码中的最小执行单元）分配一个 “守卫”（guard）标记</p>
-<ul>
-<li>运行程序</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./test_case<br></code></pre></td></tr></table></figure>
-<p><img src="/images/llvm/imageo-1.png" srcset="/img/loading.gif" lazyload alt="效果如上"></p>
-
+<h2 id="多文件编译-–-Makefile"><a href="#多文件编译-–-Makefile" class="headerlink" title="多文件编译 – Makefile"></a>多文件编译 – Makefile</h2><h2 id="多文件编译-–-CMake"><a href="#多文件编译-–-CMake" class="headerlink" title="多文件编译 – CMake"></a>多文件编译 – CMake</h2>
                 
               </div>
             
@@ -412,6 +375,8 @@
       
         <a href="/tags/llvm/" class="print-no-link">#llvm</a>
       
+        <a href="/tags/clang/" class="print-no-link">#clang</a>
+      
     </div>
   
 </div>
@@ -422,8 +387,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>llvm入门教学(Code Coverage,SanitizerCoverage)</div>
-      <div>http://example.com/2025/08/07/llvm代码覆盖率入门/</div>
+      <div>C++ 的编译过程简介</div>
+      <div>http://example.com/2025/09/09/CPP编译过程简介/</div>
     </div>
     <div class="license-meta">
       
@@ -435,7 +400,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年8月7日</div>
+          <div>2025年9月9日</div>
         </div>
       
       
