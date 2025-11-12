@@ -28,14 +28,14 @@
 <meta property="og:site_name" content="个人博客">
 <meta property="og:description" content="syzkaller进阶-(syz-repro|syz-prog2c|syz-execprog)">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/images/test.jpg">
+<meta property="og:image" content="http://example.com/images/syzkaller/old_structre.png">
 <meta property="article:published_time" content="2025-10-12T08:42:34.000Z">
-<meta property="article:modified_time" content="2025-11-12T07:46:34.649Z">
+<meta property="article:modified_time" content="2025-11-12T08:15:30.061Z">
 <meta property="article:author" content="yuluoyang">
 <meta property="article:tag" content="syzkaller">
 <meta property="article:tag" content="Fuzz">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/images/test.jpg">
+<meta name="twitter:image" content="http://example.com/images/syzkaller/old_structre.png">
   
   
   
@@ -322,7 +322,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="syzkaller进阶-1"><a href="#syzkaller进阶-1" class="headerlink" title="syzkaller进阶-1"></a>syzkaller进阶-1</h1><h2 id="崩溃报告"><a href="#崩溃报告" class="headerlink" title="崩溃报告"></a>崩溃报告</h2><h3 id="crash介绍"><a href="#crash介绍" class="headerlink" title="crash介绍"></a>crash介绍</h3><p>当 <code>syzkaller</code> 找到一个崩溃程序时，它将信息保存在 <code>workdir/crashes</code> 目录中。<br>该目录对于每种不同的崩溃类型有一个单独的子目录。<br>每个子目录包含一个 <code>description</code> 文件，包含用于识别崩溃的唯一字符串（用于漏洞识别和去重）；<br>以及最多100对 <code>logN</code> 和 <code>reportN</code> 文件，每一个测试机器的崩溃对应一对文件：</p>
+                <h2 id="崩溃报告"><a href="#崩溃报告" class="headerlink" title="崩溃报告"></a>崩溃报告</h2><h3 id="crash介绍"><a href="#crash介绍" class="headerlink" title="crash介绍"></a>crash介绍</h3><p>当 <code>syzkaller</code> 找到一个崩溃程序时，它将信息保存在 <code>workdir/crashes</code> 目录中。<br>该目录对于每种不同的崩溃类型有一个单独的子目录。<br>每个子目录包含一个 <code>description</code> 文件，包含用于识别崩溃的唯一字符串（用于漏洞识别和去重）；<br>以及最多100对 <code>logN</code> 和 <code>reportN</code> 文件，每一个测试机器的崩溃对应一对文件：</p>
 <figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><span class="hljs-bullet">-</span> <span class="hljs-string">crashes/</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">6e512290efa36515a7a27e53623304d20d1c3e</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">description</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">log0</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">report0</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">log1</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">report1</span><br>    ...<br>  <span class="hljs-bullet">-</span> <span class="hljs-string">77c578906abe311d06227b9dc3bffa4c52676f</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">description</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">log0</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">report0</span><br>    ...<br></code></pre></td></tr></table></figure>
 <h3 id="crash-log"><a href="#crash-log" class="headerlink" title="crash log"></a>crash log</h3><blockquote>
 <p>crash log（崩溃日志） 是记录内核崩溃事件的关键文件,包含原始的 <code>syzkaller</code> 日志，包括内核控制台输出以及崩溃前执行的程序。</p>
