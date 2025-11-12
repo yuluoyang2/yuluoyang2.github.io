@@ -30,7 +30,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/test.jpg">
 <meta property="article:published_time" content="2025-10-12T08:42:34.000Z">
-<meta property="article:modified_time" content="2025-10-20T09:08:09.910Z">
+<meta property="article:modified_time" content="2025-11-12T07:46:34.649Z">
 <meta property="article:author" content="yuluoyang">
 <meta property="article:tag" content="syzkaller">
 <meta property="article:tag" content="Fuzz">
@@ -259,7 +259,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          812字
+          1.3k字
         
       </span>
     
@@ -271,7 +271,7 @@
         
         
           <!-- compatible with older versions-->
-          7 分钟
+          11 分钟
         
       </span>
     
@@ -322,13 +322,36 @@
             
               <div class="markdown-body">
                 
-                <h1 id="syzkaller进阶-1"><a href="#syzkaller进阶-1" class="headerlink" title="syzkaller进阶-1"></a>syzkaller进阶-1</h1><h2 id="poc介绍"><a href="#poc介绍" class="headerlink" title="poc介绍"></a>poc介绍</h2><p>POC（Proof of Concept，概念验证） 是一段段能够验证某个漏洞、功能或理论可行性的代码、脚本或步骤集合。它的核心作用是 “证明某个问题确实存在，且可被复现”，是漏洞分析、功能验证和技术演示的关键工具。</p>
-<h2 id="syz-repro介绍"><a href="#syz-repro介绍" class="headerlink" title="syz-repro介绍"></a>syz-repro介绍</h2><p>syz-repro 是 syzkaller 工具链里的复现器，拿到一次 crash（或任意 syscall 序列）后，它会在本地 QEMU&#x2F;VM 里反复执行、最小化、并尝试生成稳定可触发 panic 的精简用例，最终输出两种形式的 PoC：</p>
+                <h1 id="syzkaller进阶-1"><a href="#syzkaller进阶-1" class="headerlink" title="syzkaller进阶-1"></a>syzkaller进阶-1</h1><h2 id="崩溃报告"><a href="#崩溃报告" class="headerlink" title="崩溃报告"></a>崩溃报告</h2><h3 id="crash介绍"><a href="#crash介绍" class="headerlink" title="crash介绍"></a>crash介绍</h3><p>当 <code>syzkaller</code> 找到一个崩溃程序时，它将信息保存在 <code>workdir/crashes</code> 目录中。<br>该目录对于每种不同的崩溃类型有一个单独的子目录。<br>每个子目录包含一个 <code>description</code> 文件，包含用于识别崩溃的唯一字符串（用于漏洞识别和去重）；<br>以及最多100对 <code>logN</code> 和 <code>reportN</code> 文件，每一个测试机器的崩溃对应一对文件：</p>
+<figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><span class="hljs-bullet">-</span> <span class="hljs-string">crashes/</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">6e512290efa36515a7a27e53623304d20d1c3e</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">description</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">log0</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">report0</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">log1</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">report1</span><br>    ...<br>  <span class="hljs-bullet">-</span> <span class="hljs-string">77c578906abe311d06227b9dc3bffa4c52676f</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">description</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">log0</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">report0</span><br>    ...<br></code></pre></td></tr></table></figure>
+<h3 id="crash-log"><a href="#crash-log" class="headerlink" title="crash log"></a>crash log</h3><blockquote>
+<p>crash log（崩溃日志） 是记录内核崩溃事件的关键文件,包含原始的 <code>syzkaller</code> 日志，包括内核控制台输出以及崩溃前执行的程序。</p>
+</blockquote>
+<ul>
+<li>1.触发崩溃的完整系统调用序列（syz 格式）、崩溃上下文，是潜在种子素材</li>
+<li>2.syzkaller 的 syz-executor 主动记录</li>
+<li>3.结构化格式</li>
+<li>4.会带有一些内核打印日志</li>
+<li>5.这些日志可以提供给 <code>syz-repro</code> 工具进行<strong>崩溃定位和最小化</strong>，或者提供给 <code>syz-execprog</code> 工具进行<strong>手动定位</strong></li>
+</ul>
+<p><img src="/images/syzkaller/image1-2.png" srcset="/img/loading.gif" lazyload alt="crash log"></p>
+<h3 id="crash-report"><a href="#crash-report" class="headerlink" title="crash report"></a>crash report</h3><blockquote>
+<p>文件包含经过处理和符号化的内核崩溃报告（例如，KASAN 报告）</p>
+</blockquote>
+<p>我们通常只需要这一对文件（如 <code>log0</code> 和 <code>report0</code>）中的一个，因为它们可能描述相同的内核错误。然而，<code>syzkaller</code> 最多保存100对这样的文件。<br><img src="/images/syzkaller/image1-5.png" srcset="/img/loading.gif" lazyload alt="crash report"></p>
+<h3 id="特殊的crash"><a href="#特殊的crash" class="headerlink" title="特殊的crash"></a>特殊的crash</h3><p>遇到以下这几种崩溃时，大概率看不到 <code>reportN</code> 文件，因为测试机器没有输出，就没有东西可放入报告中，有时这些崩溃表明 <code>syzkaller</code> 本身存在错误</p>
+<ul>
+<li><code>no output from test machine</code> ：测试机器根本没有输出</li>
+<li><code>lost connection to test machine</code> ：与机器的 SSH 连接意外关闭</li>
+<li><code>test machine is not executing programs</code> ：机器看起来是活着的，但在很长一段时间内未执行任何测试程序</li>
+</ul>
+<h2 id="syz-repro"><a href="#syz-repro" class="headerlink" title="syz-repro"></a>syz-repro</h2><h3 id="poc介绍"><a href="#poc介绍" class="headerlink" title="poc介绍"></a>poc介绍</h3><p><code>POC</code>（<code>Proof of Concept</code>，概念验证） 是一段段能够验证某个漏洞、功能或理论可行性的代码、脚本或步骤集合。它的核心作用是 “证明某个问题确实存在，且可被复现”，是漏洞分析、功能验证和技术演示的关键工具。通常为<code>c</code>代码</p>
+<h3 id="syz-repro介绍"><a href="#syz-repro介绍" class="headerlink" title="syz-repro介绍"></a>syz-repro介绍</h3><p>syz-repro 是 syzkaller 工具链里的复现器，拿到一次 crash（或任意 syscall 序列）后，它会在本地 QEMU&#x2F;VM 里反复执行、最小化、并尝试生成稳定可触发 panic 的精简用例，最终输出两种形式的 PoC：</p>
 <ul>
 <li>1.Syz 格式——用 syzkaller DSL 描述的最短系统调用序列</li>
 <li>2.C 格式——把同一序列翻译成可编译运行的 C 程序，方便在没有 syzkaller 的环境下调试。</li>
 </ul>
-<h2 id="syz-repro的使用"><a href="#syz-repro的使用" class="headerlink" title="syz-repro的使用"></a>syz-repro的使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">./bin/syz-repro -config repro.cfg /path/to/crash/log<br>./bin/syz-repro -config repro.cfg -output repro.txt -crepro repro.c -title repro_bug_title.txt /path/to/crash/log<br></code></pre></td></tr></table></figure>
+<h3 id="syz-repro的使用"><a href="#syz-repro的使用" class="headerlink" title="syz-repro的使用"></a>syz-repro的使用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">./bin/syz-repro -config repro.cfg /path/to/crash/log<br>./bin/syz-repro -config repro.cfg -output repro.txt -crepro repro.c -title repro_bug_title.txt /path/to/crash/log<br></code></pre></td></tr></table></figure>
 <blockquote>
 <p>使用syz-repro对log中包含的prog进行复现，这个流程包括</p>
 </blockquote>
@@ -340,17 +363,7 @@
 <li>5.对C poc进行简化</li>
 </ul>
 <p>执行命令后，等待<strong>亿段</strong>时间即可结束，最后就可以看到<br><img src="/images/syzkaller/image1-1.png" srcset="/img/loading.gif" lazyload alt="复现成功"></p>
-<h2 id="crash-log"><a href="#crash-log" class="headerlink" title="crash log"></a>crash log</h2><blockquote>
-<p>crash log（崩溃日志） 是记录内核崩溃事件的关键文件，包含触发崩溃的上下文、错误类型、调用栈等信息，是定位内核漏洞的核心依据</p>
-</blockquote>
-<ul>
-<li>1.触发崩溃的完整系统调用序列（syz 格式）、崩溃上下文，是潜在种子素材</li>
-<li>2.syzkaller 的 syz-executor 主动记录</li>
-<li>3.结构化格式</li>
-<li>4.会带有一些内核打印日志</li>
-</ul>
-<p><img src="/images/syzkaller/image1-2.png" srcset="/img/loading.gif" lazyload alt="crash log"></p>
-<h2 id="程序最小化"><a href="#程序最小化" class="headerlink" title="程序最小化"></a>程序最小化</h2><ul>
+<h3 id="程序最小化"><a href="#程序最小化" class="headerlink" title="程序最小化"></a>程序最小化</h3><ul>
 <li>1.初始状态的log包含大量冗余调用的原始序列</li>
 <li>2.syz-repro 会通过 “逐步剔除 + 验证崩溃” 的迭代过程，找到最小化序列<ul>
 <li>首先从log的原始调用中，标记出与崩溃上下文相关的 “高嫌疑调用”</li>
@@ -361,20 +374,24 @@
 </li>
 <li>最终输出的最小化程序</li>
 </ul>
-<h2 id="syz-prog2c的介绍"><a href="#syz-prog2c的介绍" class="headerlink" title="syz-prog2c的介绍"></a>syz-prog2c的介绍</h2><p>syz-prog2c 是 syzkaller 工具链中的一个实用工具，主要功能是将 syzkaller 生成的 .syz 格式程序（包含系统调用序列的结构化测试用例）转换为 C 语言代码</p>
-<h2 id="syz-prog2c的使用"><a href="#syz-prog2c的使用" class="headerlink" title="syz-prog2c的使用"></a>syz-prog2c的使用</h2><blockquote>
+<h2 id="syz-prog2c"><a href="#syz-prog2c" class="headerlink" title="syz-prog2c"></a>syz-prog2c</h2><h3 id="syz-prog2c的介绍"><a href="#syz-prog2c的介绍" class="headerlink" title="syz-prog2c的介绍"></a>syz-prog2c的介绍</h3><p>syz-prog2c 是 syzkaller 工具链中的一个实用工具，主要功能是将 syzkaller 生成的 .syz 格式程序（包含系统调用序列的结构化测试用例）转换为 C 语言代码</p>
+<h3 id="syz-prog2c的使用"><a href="#syz-prog2c的使用" class="headerlink" title="syz-prog2c的使用"></a>syz-prog2c的使用</h3><blockquote>
 <p>将syz-repro生成的prog&#x2F;syz文件序转换为C程序</p>
 </blockquote>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./bin/syz-prog2c -prog repro.syz &gt; repro.c<br></code></pre></td></tr></table></figure>
 <p><img src="/images/syzkaller/image1-3.png" srcset="/img/loading.gif" lazyload alt="repro.c"></p>
-<h2 id="测试repro-c"><a href="#测试repro-c" class="headerlink" title="测试repro.c"></a>测试repro.c</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> ./qemu.sh <span class="hljs-comment">#启动qemu 记得打开9p共享</span><br><span class="hljs-built_in">mkdir</span> host_share<br>mount -t 9p -o rw,trans=virtio hostshare host_share <span class="hljs-comment">#通过9p共享</span><br>gcc repro.c<br>./a.out<br></code></pre></td></tr></table></figure>
+<h2 id="测试repro-c"><a href="#测试repro-c" class="headerlink" title="测试repro.c"></a>测试repro.c</h2><p>重新编译内核</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_NET_9P</span>=y<br><span class="hljs-attr">CONFIG_9P_FS</span>=y<br><span class="hljs-attr">CONFIG_VIRTIO_PCI</span>=y<br><span class="hljs-attr">CONFIG_NET_9P_VIRTIO</span>=y<br><span class="hljs-attr">CONFIG_9P_FS_POSIX_ACL</span>=y<br><span class="hljs-attr">CONFIG_NET_9P_DEBUG</span>=y (Optional可选)<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> ./qemu.sh <span class="hljs-comment">#启动qemu 记得打开9p共享</span><br><span class="hljs-built_in">mkdir</span> host_share<br>mount -t 9p -o rw,trans=virtio hostshare host_share <span class="hljs-comment">#通过9p共享</span><br>gcc repro.c<br>./a.out<br></code></pre></td></tr></table></figure>
 <p><img src="/images/syzkaller/image1-4.png" srcset="/img/loading.gif" lazyload alt="复现结果"></p>
-<h2 id="syz-execprog的介绍"><a href="#syz-execprog的介绍" class="headerlink" title="syz-execprog的介绍"></a>syz-execprog的介绍</h2><p>syz-execprog 是 syzkaller 工具链中用于执行 .syz 格式测试用例的核心工具，主要负责将 syzkaller 生成的系统调用序列（测试程序）在目标环境中实际运行，并捕获执行过程中的内核行为（如崩溃、异常）。它是连接 “抽象测试用例” 与 “实际内核执行” 的关键组件。</p>
+<h2 id="syz-execprog"><a href="#syz-execprog" class="headerlink" title="syz-execprog"></a>syz-execprog</h2><h3 id="syz-execprog的介绍"><a href="#syz-execprog的介绍" class="headerlink" title="syz-execprog的介绍"></a>syz-execprog的介绍</h3><p>syz-execprog 是 syzkaller 工具链中用于执行 .syz 格式测试用例的核心工具，主要负责将 syzkaller 生成的系统调用序列（测试程序）在目标环境中实际运行，并捕获执行过程中的内核行为（如崩溃、异常）。它是连接 “抽象测试用例” 与 “实际内核执行” 的关键组件。</p>
 <ol>
 <li>解析 .syz 文本 → 内部 Prog 对象</li>
 <li>通过 IPC 把程序发给 syz-executor</li>
 <li>收集结果、统计、crash 信息。</li>
 </ol>
+<h3 id="syz-execprog的使用"><a href="#syz-execprog的使用" class="headerlink" title="syz-execprog的使用"></a>syz-execprog的使用</h3><p>可以使用 syz-execprog 工具在循环模式下执行崩溃日志中的所有程序，以检查其中是否有导致内核崩溃的程序。然后，可以通过测试每个单独的程序来确定哪一个导致了崩溃：syz-execprog 是在本地执行程序的，所以你需要将 syz-execprog 和 syz-executor 复制到使用测试内核的虚拟机中并在那里运行<del>9p共享反正失败了，不知道为什么</del></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 反正我失败了，不保真</span><br>./syz-execprog -executor=./syz-executor -sandbox=none -debug repro.txt<br></code></pre></td></tr></table></figure>
 
                 
               </div>
